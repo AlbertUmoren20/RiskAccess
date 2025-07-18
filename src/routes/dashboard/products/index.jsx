@@ -81,21 +81,21 @@ const ProductsPage = () => {
           <Button variant="contained" color="primary" sx={{ py: 7.5, fontSize: '3.3rem' }} onClick={handleCreateClick}>
             +
           </Button>
-          <Button variant="contained" sx={{ py: 7.5, backgroundColor: '#40E0D0', fontSize: '1.3rem' }}onClick={() => navigate('/standards/iso')}>
+          <Button variant="contained" sx={{ py: 7.5, backgroundColor: '#40E0D0', fontSize: '1.3rem' }}onClick={() => navigate('/admin/standards/iso')}>
             ISO 27001
           </Button>
-          <Button variant="contained" color="secondary" sx={{ py: 7.5, fontSize: '1.3rem' }} onClick={() => navigate ('/standards/vulnerability')}>
+          <Button variant="contained" color="secondary" sx={{ py: 7.5, fontSize: '1.3rem' }} onClick={() => navigate ('/admin/standards/vulnerability')}>
             Vulnerability <br /> Assessment
           </Button>
-          <Button variant="contained" color="success" sx={{ py: 7.5, fontSize: '1.3rem' }}  onClick={() => navigate('/standards/pci')}>
+          <Button variant="contained" color="success" sx={{ py: 7.5, fontSize: '1.3rem' }}  onClick={() => navigate('/admin/standards/pci')}>
             PCI
           </Button>
-          <Button variant="contained" color="warning" sx={{ py: 7.5, fontSize: '1.3rem' }} onClick={() => navigate('/standards/erm')}>
+          <Button variant="contained" color="warning" sx={{ py: 7.5, fontSize: '1.3rem' }} onClick={() => navigate('/admin/standards/erm')}>
             ERM <br />(Enterprise Risk Management)
           </Button>
             <Button
             variant="contained"
-            sx={{ py: 7.5, backgroundColor: '#FFB2B2', color: 'white', fontSize: '1.3rem' }} onClick={() => navigate ('/standards/regulatory-compliance')}
+            sx={{ py: 7.5, backgroundColor: '#FFB2B2', color: 'white', fontSize: '1.3rem' }} onClick={() => navigate ('/admin/standards/regulatory-compliance')}
             >
             Regulatory Compliance
           </Button>

@@ -15,7 +15,7 @@ const UserSelection = () => {
           <span className="label">User</span>
         </button>
 
-        <button onClick={() => navigate("/adminlog")} className="select-button admin-button">
+        <button onClick={() => navigate("/admin")} className="select-button admin-button">
           <Settings className="icon" />
           <span className="label">Admin</span>
         </button>

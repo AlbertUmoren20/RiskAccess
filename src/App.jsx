@@ -33,7 +33,7 @@ function App() {
             element:<AdminLogin />
         },
         {
-            path: "/user",
+            path: "/",
             element: <UserSelection />,
         },
          {
@@ -46,7 +46,7 @@ function App() {
     },
 
         {
-            path: "/",
+            path: "/admin",
             element: <Layout />,
             children: [
                 {

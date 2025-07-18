@@ -19,9 +19,7 @@ import { mockDataTeam } from '@/constants/index';
 
 
 const ISOPage = () => {
-
-    
-       const supabase = useSupabaseClient();
+  const supabase = useSupabaseClient();
   const navigate = useNavigate();
 
   const [newEvent, setNewEvent] = useState({

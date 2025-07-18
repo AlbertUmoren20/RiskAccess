@@ -10,17 +10,17 @@ export const navbarLinks = [
             {
                 label: "Dashboard",
                 icon: Home,
-                path: "/",
+                path: "/admin",
             },
             {
                 label: "Calendar",
                 icon: ChartColumn,
-                path: "/calendar",
+                path: "/admin/calendar",
             },
             {
                 label: "Reports",
                 icon: NotepadText,
-                path: "/reports",
+                path: "/admin/reports",
             },
         ],
     },
@@ -30,17 +30,17 @@ export const navbarLinks = [
             {
                 label: "Members",
                 icon: Users,
-                path: "/customers",
+                path: "/admin/customers",
             },
             {
                 label: "New Members",
                 icon: UserPlus,
-                path: "/new-customer",
+                path: "/admin/new-customer",
             },
             {
                 label: "Verified Members",
                 icon: UserCheck,
-                path: "/verified-customers",
+                path: "/admin/verified-customers",
             },
         ],
     },
@@ -50,7 +50,7 @@ export const navbarLinks = [
             {
                 label: "Standard",
                 icon: Package,
-                path: "/standards",
+                path: "/admin/standards",
                 submenu: [
                     // { label: "ISO", path: "/standards/isopage" },
                     // { label: "ERM", path: "/standards/ermpage" },
@@ -62,12 +62,12 @@ export const navbarLinks = [
             {
                 label: "New Standard",
                 icon: PackagePlus,
-                path: "/new-standard",
+                path: "/admin/new-standard",
             },
             { 
                 label: "Inventory",
                 icon: ShoppingBag,
-                path: "/inventory",
+                path: "/admin/inventory",
             },
         ],  
     },
@@ -77,7 +77,7 @@ export const navbarLinks = [
             {
                 label: "Settings",
                 icon: Settings,
-                path: "/settings",
+                path: "/admin/settings",
             },
         ],
     },

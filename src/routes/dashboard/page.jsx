@@ -101,7 +101,7 @@ const DashboardPage = () => {
                         <table className="w-full">
                             <thead className="border-b border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase">Standard</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase">Standards</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase">Task</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase">Assigned To</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase">Start Date</th>
