@@ -3,7 +3,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { format } from "date-fns";
 import { useState } from "react";
 import { overviewData, recentSalesData, topProducts } from "@/constants";
-import { useStandards } from '@/contexts/StandardsContext';
+import { useStandards } from "../../contexts/standardscontext";
 import { Footer } from "@/layouts/footer";
 import { CreditCard, DollarSign, Package, PencilLine, Star, Trash, TrendingUp, Users } from "lucide-react";
 
