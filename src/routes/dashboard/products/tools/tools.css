@@ -1,0 +1,234 @@
+/* tools.css */
+
+.event-form-container {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.form-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #111827;
+  text-align: center;
+}
+
+.input-row {
+  display: grid;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.labels {
+  font-family: Arial, sans-serif;
+  color: #000000; /* Teal color similar to the image */
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.input-row input,
+.input-row .date-picker {
+  border: none;
+  border-bottom: 2px solid #42a5f5; /* Light blue underline */
+  outline: none;
+  font-size: 1rem;
+  padding: 0.25rem 0;
+  background: transparent;
+  transition: border-bottom-color 0.3s;
+}
+.input-row-1{
+  display: flex;
+}
+.input-row-2{
+  display: flex;
+  margin-top: 30px;
+}
+
+
+.input-row input:focus,
+.input-row .date-picker:focus {
+  border-bottom-color: #1976d2; /* Darker blue on focus */
+}
+.event-title-input{
+  margin-right: 10px;
+  width: 250px;
+}
+
+.team-select-label Select{
+  margin-top: 100px;
+}
+/* .event-title-input,
+.date-picker {
+  width: 100px;
+  margin-bottom: 10px;
+  padding: 19px;
+  font-size: 14px;
+  /* border: 1px solid #d1d5db; */
+  /* border-radius: 6px; */
+  /* outline: none; */
+  /* transition: border-color 0.2s; */
+/* }  */
+
+.event-title-input:focus,
+.date-picker:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+
+.add-event-button {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 150px;
+  transition: background-color 0.3s;
+}
+
+
+.add-event-button:hover {
+  background-color: #1d4ed8;
+}
+
+.add-event-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+}
+
+.dashboard-title {  
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+
+.task-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  margin-top: 10px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+.task-coordinator {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.task-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.task-status {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+}
+
+.status-not-started {
+  background-color: #fed7d7;
+  color: #c53030;
+}
+
+.status-in-progress {
+  background-color: #feebc8;
+  color: #b7791f;
+}
+
+.status-completed {
+  background-color: #c6f6d5;
+  color: #276749;
+}
+
+.task-frequency {
+  font-size: 0.75rem;
+  color: #718096;
+}  
+
+.event-list {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.event-card {
+  padding: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.event-card strong {
+  font-size: 16px;
+}
+
+.delete-btn {
+  margin-top: 10px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}

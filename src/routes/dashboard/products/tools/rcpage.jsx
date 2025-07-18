@@ -1,0 +1,305 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import './tools.css';
+import emailjs from '@emailjs/browser';
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
+} from '@mui/material';
+import { mockDataTeam } from '@/constants/index';
+const RCPage = ()=> {
+      const supabase = useSupabaseClient();
+  const navigate = useNavigate();
+
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    start: new Date(),
+    end: new Date(),
+    message: ''
+  });
+
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [openForm, setOpenForm] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false); 
+
+  const handleMemberChange = (event) => {
+    const { value } = event.target;
+    setSelectedMembers(typeof value === 'string' ? value.split(',') : value);
+  };
+
+  const handleOpenForm = () => {
+    setOpenForm(!openForm);
+  };
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleAddEvent = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session?.provider_token) throw new Error('Session or provider token not available.');
+
+      const event = {
+        summary: newEvent.title,
+        message: selectedMembers.join(', '),
+        start: { dateTime: newEvent.start.toISOString() },
+        end: { dateTime: newEvent.end.toISOString() },
+        description: `Assigned to: ${selectedMembers.join(', ')}`,
+      };
+
+      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.provider_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(event),
+      });
+
+      await Promise.all(selectedMembers.map(async (memberName) => {
+        const member = mockDataTeam.find((m) => m.name === memberName);
+        if (!member || !member.email) throw new Error(`Email not found for ${memberName}`);
+
+        const templateParams = {
+          to_email: member.email,
+          name: memberName,
+          time: new Date().toLocaleString(),
+          title: newEvent.title,
+          message: `You have been assigned a new task: ${newEvent.title}.\nStart: ${newEvent.start.toLocaleString()}\nEnd: ${newEvent.end.toLocaleString()}`
+        };
+
+        console.log('Template params:', templateParams);
+        try {
+          const result = await emailjs.send(
+            'service_zlvrbn9',
+            'template_osgthn8',
+            templateParams,
+            'o6wnQCmZnnJvdxCKG'
+          );
+          console.log(`Email sent to ${memberName}`, result);
+        } catch (err) {
+          console.error(`Failed to send email to ${memberName}`, err);
+        }
+      }));
+
+      if (!response.ok) throw new Error('Failed to create event');
+      await fetchEvents();
+      setOpenForm(false); // Close form after successful event creation
+      // navigate('/calendar');
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session?.provider_token) throw new Error('Session or provider token not available.');
+
+      const response = await fetch(
+        'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+        {
+          headers: {
+            Authorization: `Bearer ${session.provider_token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      setEvents(data.items || []);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+    }
+  };
+
+  const DeleteButton = ({ eventId }) => {
+    const handleDeleteClick = () => {
+      setShowConfirm(true);
+      setEventToDelete(eventId);
+    };
+
+    const handleConfirm = async (confirm) => {
+      if (confirm) {
+        try {
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error || !session?.provider_token) throw new Error('Session or provider token not available.');
+
+          await fetch(
+            `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventToDelete}`,
+            {
+              method: 'DELETE',
+              headers: {
+                Authorization: `Bearer ${session.provider_token}`,
+              },
+            }
+          );
+
+          setEvents((prev) => prev.filter((event) => event.id !== eventToDelete));
+        } catch (err) {
+          alert(`Failed to delete event: ${err.message}`);
+        }
+      }
+      setShowConfirm(false);
+      setEventToDelete(null);
+    };
+
+    return (
+      <>
+        <button
+          onClick={handleDeleteClick}
+          className="delete-btn"
+          style={{
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '0.75rem'
+          }}
+        >
+          Delete
+        </button>
+
+        {showConfirm && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-4 rounded shadow-lg">
+              <p className="mb-4">Do you want to delete?</p>
+              <div className="flex justify-around">
+                <button
+                  onClick={() => handleConfirm(true)}
+                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => handleConfirm(false)}
+                  className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  return (
+    <div className="Page">
+      <h1 className="title">Regulatory Compliance PAGE</h1>
+      <p className="description">This is the standard task page for RC</p>
+    
+      {/* Dropdown close to the Tasks */}
+      <h2 className="section-title" onClick={toggleDropdown}>Tasks</h2>
+      {/* Entire section open and close controlled by isOpen */}
+      {isOpen && (
+        <div>
+          <div className="task-sections">   
+            {events.length > 0 && (
+              <div className="task-section">
+                <div className="task-list">
+                  {events
+                    .filter((event) => event.summary?.toLowerCase().includes(''))
+                    .map((event) => (
+                      <div className="task-item" key={event.id}>
+                        <div className="task-info">
+                          <div className="task-name">{event.summary}</div>
+                          <div className="task-coordinator">{event.description}</div>
+                          <div className="task-frequency">
+                            {new Date(event.start.dateTime).toLocaleString()} -{' '}
+                            {new Date(event.end.dateTime).toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="task-meta">
+                          <div className="task-status status-not-started bg-green-500 text-white">Started</div>
+                          <DeleteButton eventId={event.id} />
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {openForm && (
+            <div className="input-row mt-6">
+              <div className='input-row-1'>
+                <h2 className='labels'>Event Title</h2>
+                <input
+                  className="event-title-input"
+                  value={newEvent.title}
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                />
+                <h2 className='labels'>Start Date</h2>
+                <DatePicker
+                  selected={newEvent.start}
+                  onChange={(start) => setNewEvent({ ...newEvent, start })}
+                  showTimeSelect
+                  dateFormat="Pp"
+                  className="date-picker"
+                  placeholderText="Start Date"
+                />
+              </div>
+
+              <div className='input-row-2'>
+                <h2 className='labels'>End Date</h2>
+                <DatePicker
+                  selected={newEvent.end}
+                  onChange={(end) => setNewEvent({ ...newEvent, end })}
+                  showTimeSelect
+                  dateFormat="Pp"
+                  className="date-picker"
+                  placeholder="End Date"
+                />
+                <FormControl sx={{ minWidth: 200, marginLeft: 15}}>
+                  <InputLabel>Assign Members</InputLabel>
+                  <Select
+                    labelId="team-select-label"
+                    multiple
+                    className="team-select-label"
+                    value={selectedMembers}
+                    onChange={handleMemberChange}
+                    input={<OutlinedInput label="Assign Team Members" />}
+                    renderValue={(selected) => selected.join(', ')}
+                  >
+                    {mockDataTeam.map((member) => (
+                      <MenuItem key={member.id} value={member.name}>
+                        <Checkbox checked={selectedMembers.indexOf(member.name) > -1} />
+                        <ListItemText primary={member.name} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl> 
+              </div>
+              <button className="add-event-button" onClick={handleAddEvent}>
+                Add Event
+              </button>
+            </div>
+          )}       
+          <button className='create-form bg-blue-900 text-white rounded-lg p-4 cursor-pointer'
+            onClick={handleOpenForm}>Create Form</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default RCPage;
