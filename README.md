@@ -1,85 +1,154 @@
-<br />
-<div align="center">
-    <img src="public/favicon-light.svg" style="vertical-align: middle;" width="48" height="48"/>
-    <br />
-    <br />
-    <p>
-        Build a Modern Dashboard UI Design using React JS, TailwindCSS.
-</p>
-<a href="https://youtu.be/uHxZMmvQXHQ">Watch Tutorial</a>
+# Risk Monitoring System
+## Overview
 
-</div>
+The Risk Monitoring System is a comprehensive compliance and risk management platform designed to help organizations monitor, track, and manage their compliance activities across multiple standards. The application provides real-time insights into task completion, risk assessment, and compliance status, enabling teams to maintain operational effectiveness and meet regulatory requirements.
 
-<br />
+## Key Features
 
-![Dashboard UI Design](./public/Dashboard%20UI%20Design.png)
+- **Real-time Dashboard**: Monitor compliance activities across all standards at a glance
+- **Multi-standard Support**: Track ISO 27001, PCI DSS, Vulnerability Assessments, ERM, and Regulatory Compliance
+- **Task Management**: Assign, track, and update compliance tasks with status tracking
+- **Real-time Updates**: Synchronized status updates between users and administrators
+- **Visual Analytics**: Interactive charts and graphs for performance monitoring
+- **Responsive Design**: Fully functional on desktop and mobile devices
+- **Role-based Access**: Different views for standard users and administrators
+- **Supabase Integration**: Secure and scalable backend with real-time capabilities
 
-## 🗒️ Table of Contents
+## Technology Stack
 
-1. [💬 Introduction](#introduction)
-2. [🛠️ Tools](#tools)
-3. [✨ Features](#features)
-4. [🚀 Getting Started](#getting-started)
-5. [💻 Code Snippets](#code-snippets)
-6. [☕ Support Me](#support-me)
+### Frontend
+- **React** (v18) with Vite
+- **Tailwind CSS** for styling
+- **Recharts** for data visualization
+- **React Router** for navigation
+- **React Context API** for state management
 
-## <a name="introduction">💬 Introduction</a>
+### Backend
+- **Supabase** for database and authentication
+- **PostgreSQL** for data storage
+- **Real-time Subscriptions** for instant updates
 
-Welcome to the Dashboard UI Design repository! This project is a comprehensive guide to building a clean, user-friendly, and fully responsive dashboard interface. Whether you're new to UI/UX design or an experienced developer looking to enhance your skills, this repository provides essential resources to help you create an efficient and visually organized dashboard experience. Explore best practices for crafting intuitive layouts, managing data visualization, and ensuring seamless user interaction.
+### Development Tools
+- **ESLint** and **Prettier** for code quality
+- **Git** for version control
+- **Vercel** for deployment
 
-## <a name="tools">🛠️ Tools</a>
+## Getting Started
 
--   [React JS](https://react.dev)
--   [TailwindCSS](https://tailwindcss.com/)
--   [Lucide Icons](https://lucide.dev/)
--   [React Router](https://reactrouter.com/en/main)
--   [Recharts](https://recharts.org/en-US/)
+### Prerequisites
+- Node.js (v18 or higher)
+- npm (v9 or higher)
+- Supabase account
 
-## <a name="features">✨ Features</a>
+### Installation
 
--   **Responsive Design:** Ensures your portfolio looks great on desktops, tablets, and mobile devices.
--   **Clean and Modern Layout:** A professional design that highlights your projects, skills, and experience.
-
-## <a name="getting-started">🚀 Getting Started</a>
-
-To get started follow these steps:
-
-#### Cloning the Repository
-
-Using CLI
-
+1. Clone the repository:
 ```bash
-git clone https://github.com/xdcode2/dashboard-ui-design.git
+git clone https://github.com/your-username/risk-monitoring-system.git
+cd risk-monitoring-system
 ```
 
-**\*\*_Ensure you have installed [Git](https://git-scm.com) on your machine._**
-
-or using GitHub:
-
--   Go to the project [repository](https://github.com/xdcode2/dashboard-ui-design) on my GitHub page
--   Click on the green button on the top 👆
--   Click Download ZIP
-
-#### Installation
-
-Install the project dependencies using npm:
-
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-**\*\*_Ensure you have installed [NodeJS](https://nodejs.org/en) on your machine._**
+3. Set up environment variables:
+Create a `.env` file in the root directory with your Supabase credentials:
+```env
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-#### Running the Project
-
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-**\*\*_This project uses [Vite](https://vitejs.dev)._**
+### Supabase Setup
 
-## <a name="support-me">☕ Support Me</a>
+1. Create a new project in Supabase
+2. Set up the `tasks` table with the following columns:
+   - `id` (UUID, primary key)
+   - `title` (text)
+   - `summary` (text)
+   - `description` (text)
+   - `standard` (text)
+   - `assigned_to` (text)
+   - `start` (timestamp)
+   - `end` (timestamp)
+   - `status` (text)
+   - `priority` (text)
+3. Enable Row Level Security (RLS) for the `tasks` table
+4. Set up real-time functionality for the `tasks` table
 
-[![ko-fi](https://img.shields.io/static/v1?message=Support%20me%20on%20ko-fi&logo=kofi&label=&color=ff5e5b&logoColor=white&labelColor=&style=for-the-badge)](https://ko-fi.com/J3J1NMYT7)
+## Application Structure
 
-[![youtube](https://img.shields.io/static/v1?message=Subscribe&logo=youtube&label=&color=FF0000&logoColor=white&labelColor=&style=for-the-badge)](https://www.youtube.com/@_xdcode_ "XD Code")
+```
+src/
+├── components/          # Reusable components
+├── contexts/            # Context providers
+│   ├── taskcontext.js   # Task management context
+│   └── standardscontext.js # Standards context
+├── layouts/             # Page layouts
+├── pages/               # Application pages
+│   ├── dashboard/       # Main dashboard
+│   ├── admin/           # Admin dashboard
+│   └── standards/       # Standard-specific views
+├── hooks/               # Custom hooks
+├── public/              # Static assets
+└── App.jsx              # Main application component
+```
+
+## Usage
+
+### User Views
+1. **Dashboard**: Overview of all compliance standards and tasks
+2. **Standard-specific Views**: Detailed task lists for each compliance standard
+3. **Task Management**: Update task status with color-coded indicators
+
+### Admin Features
+1. **Real-time Monitoring**: Track task progress across all standards
+2. **Analytics Dashboard**: Visualize compliance metrics and trends
+3. **Status Distribution**: Pie charts showing task status distribution
+4. **Overdue Alerts**: Highlighted overdue tasks requiring attention
+
+## Deployment
+
+### Vercel Deployment
+1. Push your code to a GitHub repository
+2. Create a new project in Vercel
+3. Connect your GitHub repository
+4. Add environment variables:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+5. Deploy!
+
+### Building for Production
+```bash
+npm run build
+```
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Supabase team for the excellent backend-as-a-service platform
+- Tailwind CSS for the utility-first CSS framework
+- Recharts for the charting library
+- Vite for the fast development environment
+
+---
+
