@@ -54,7 +54,7 @@ export const navbarLinks = [
                 submenu: [
                     // { label: "ISO", path: "/standards/isopage" },
                     // { label: "ERM", path: "/standards/ermpage" },
-                    { label: "PCI", path: "/pcipage"},
+                    // { label: "PCI", path: "/pcipage"},
                     // { label: "Vulnerability Assessment", path: "/standards/vulnerabilitypage" },
                     // { label: "Regulatory Compliance", path: "/standards/rcpage" },
                 ],
@@ -315,9 +315,9 @@ export const mockDataTeam = [
   },
   {
     id: 5,
-    name: "Daenerys Targaryen",
-    email: "daenerystargaryen@gmail.com",
-    age: 31,
+    name: "Iyebiye Oluwasuan",
+    email: "iye11762@gmail.com",
+    age: 20,
     phone: "(421)445-1189",
     access: "user",
   },

@@ -23,11 +23,40 @@ import { SignUp } from "./register/signup";
 import UserSelection from "./register/userselection";
 import { AdminLogin } from "./register/adminlog";
 import { StandardsProvider } from "./contexts/standardscontext";
+import TskDash from './user/tskdash';
+import Page from "./user/page"
+import PCIUser from "./user/tools/pciuser";
+import ISOUser from "./user/tools/isouser";
+import ERMUser from "./user/tools/ermuser";
+import RCUser from "./user/tools/rcuser";   
+import VulnerabilityUser from "./user/tools/vulnerabilityuser";
 
 
 function App() {
     const router = createBrowserRouter([
         // Define the main route for the application
+        
+           
+                {
+                    path: "dashboard",
+                    children: [
+                        { path: "iso", element: <ISOUser /> },
+                        { path: "erm", element: <ERMUser /> },
+                        { path: "pci", element: <PCIUser /> },
+                        { path: "vulnerability", element: <VulnerabilityUser /> },
+                        { path: "regulatory-compliance", element: <RCUser /> },
+                    ],
+                },
+            
+           
+        , {
+            path: "/userHome",
+            element: <Page/>
+        },
+        {
+              path: "/Dashboard",
+            element: <TskDash/>
+        },
         {
             path: "/adminlog",
             element:<AdminLogin />
@@ -91,6 +120,7 @@ function App() {
             { path: "regulatory-compliance", element: <RCPage /> },
           ],
                 },
+               
                 {
                     path: "inventory",
                     element: <h1 className="title">Inventory</h1>,
@@ -101,6 +131,9 @@ function App() {
                 },
             ],
         },
+        
+        
+         
     ]);
 
     return (

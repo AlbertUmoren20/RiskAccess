@@ -8,7 +8,8 @@ const UserSelection = () => {
 
   return (
     <div className="user-selection-container">
-      <h1 className="title-head">Choose Account Type</h1>
+      
+      <h1 className="title-head"> Risk Monitoring System</h1>
       <div className="button-wrapper">
         <button onClick={() => navigate("/login")} className="select-button user-button">
           <User className="icon" />

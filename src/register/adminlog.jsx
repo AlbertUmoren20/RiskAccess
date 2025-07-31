@@ -28,7 +28,7 @@ export function AdminLogin() {
       provider: 'google',
       options: {
         scopes: 'https://www.googleapis.com/auth/calendar',
-        redirectTo: `${window.location.origin}/`
+        redirectTo: `${window.location.origin}/admin`
       }
     });
 

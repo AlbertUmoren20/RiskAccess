@@ -1,37 +1,28 @@
 // contexts/StandardsContext.js
-import { createContext, useState, useContext } from 'react';
+import { createContext, useContext } from 'react';
+import { useTasks } from '@/contexts/taskcontext'; // Import the task context
 
 const StandardsContext = createContext();
 
 export const StandardsProvider = ({ children }) => {
-    const [standardsEvents, setStandardsEvents] = useState({
-        pci: [],
-        iso: [],
-        vulnerability: [],
-        erm: [],
-    });
+  const { tasks } = useTasks(); // Get tasks from TaskContext
+  
+  // Organize tasks by standard
+  const standardsEvents = {
+    pci: tasks.filter(task => task.standard?.toLowerCase() === 'pci'),
+    iso: tasks.filter(task => task.standard?.toLowerCase() === 'iso'),
+    vulnerability: tasks.filter(task => task.standard?.toLowerCase() === 'vulnerability'),
+    erm: tasks.filter(task => task.standard?.toLowerCase() === 'erm'),
+    rc: tasks.filter(task => task.standard?.toLowerCase() === 'rc')
+  };
 
-    const updateStandardEvents = (standard, events) => {
-        setStandardsEvents(prev => ({
-            ...prev,
-            [standard]: events
-        }));
-    };
+  const getAllEvents = () => tasks;
 
-    // Get all events across all standards
-    const getAllEvents = () => {
-        return Object.values(standardsEvents).flat();
-    };
-
-    return (
-        <StandardsContext.Provider value={{ 
-            standardsEvents, 
-            updateStandardEvents,
-            getAllEvents 
-        }}>
-            {children}
-        </StandardsContext.Provider>
-    );
+  return (
+    <StandardsContext.Provider value={{ standardsEvents, getAllEvents }}>
+      {children}
+    </StandardsContext.Provider>
+  );
 };
 
 export const useStandards = () => useContext(StandardsContext);
