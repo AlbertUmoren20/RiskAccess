@@ -282,61 +282,24 @@ export const topProducts = [
 export const mockDataTeam = [
     {
     id: 1,
-    name: "Umoren Gilbert",
+    name: "Gilbert Umoren",
     email: "umorengilbert17@gmail.com",
-    age: 35,
-    phone: "(665)121-5454",
-    access: "admin",
-  },
-  {
-    id: 2,
-    name: "Oyinkansola",
-    // email: "awotikuoyin@gmail.com",
-    email: "Oyinkansola.Awotiku@etranzact.com",
-    age: 42,
-    phone: "(421)314-2288",
-    access: "manager",
-  },
-  {
-    id: 3,
-    name: "Edward Onyenweaku",
-    email: "Edward.Onyenweaku@etranzactng.com",
-    age: 45,
-    phone: "(422)982-6739",
+    age: 21,
+    phone: "09033041866",
     access: "user",
   },
-  {
-    id: 4,
-    name: "Ezechukwu Anozie",
-    email: "ezechukwu.anozie@etranzact.com",
-    age: 16,
-    phone: "(921)425-6742",
-    access: "admin",
-  },
-  {
-    id: 5,
-    name: "Iyebiye Oluwasuan",
-    email: "iye11762@gmail.com",
-    age: 20,
-    phone: "(421)445-1189",
+    {
+    id: 1,
+    name: "Albert Umoren",
+    email: "albertumoren2004@gmail.com",
+    age: 21,
+    phone: "09066304158",
     access: "user",
   },
-  {
-    id: 6,
-    name: "Ever Melisandre",
-    email: "evermelisandre@gmail.com",
-    age: 150,
-    phone: "(232)545-6483",
-    access: "manager",
-  },
-  {
-    id: 7,
-    name: "Ferrara Clifford",
-    email: "ferraraclifford@gmail.com",
-    age: 44,
-    phone: "(543)124-0123",
-    access: "user",
-  },
+  
+
+ 
+
 //   {
 //     id: 8,
 //     name: "Rossini Frances",

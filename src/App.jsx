@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { ThemeProvider } from "@/contexts/theme-context";
+import {ThemeProvider} from "@/contexts/theme-context";
 import Layout from "@/routes/layout";
+import ManagerSHF from "./layouts/managershf";
 import DashboardPage from "@/routes/dashboard/page";
 import CustomersPage from "@/routes/dashboard/customers/page";
 import NewCustomerPage from "@/routes/dashboard/customers/newcustomers/page";
@@ -18,10 +19,16 @@ import VulnerabilityPage from "./routes/dashboard/products/tools/vulnerabilitypa
 // import  { VulnerabilityPage } from "./routes/dashboard/products/tools/vulass";
 // import { RCPage } from "./routes/dashboard/products/tools/rc";
 // import Register from "./register/register";
-import { Login } from "./register/login";
+// import { UserLogin } from "./register/login";
+import UserLogin from "./register/userlogin";
 import { SignUp } from "./register/signup";
 import UserSelection from "./register/userselection";
 import { AdminLogin } from "./register/adminlog";
+import ManagerLogin from "./register/managerlogin";
+import ManagerDashboard from "./manager/managerdash";
+import ManagerStandardsPage from "./contexts/managerstandard";
+import ManagerTeamPage from "./routes/dashboard/customers/managerteampage";
+import ManagerTasksPage from "./contexts/managertask";
 import { StandardsProvider } from "./contexts/standardscontext";
 import TskDash from './user/tskdash';
 import Page from "./user/page"
@@ -30,6 +37,10 @@ import ISOUser from "./user/tools/isouser";
 import ERMUser from "./user/tools/ermuser";
 import RCUser from "./user/tools/rcuser";   
 import VulnerabilityUser from "./user/tools/vulnerabilityuser";
+import StandardDetailPage from "./routes/dashboard/products/tools/standarddetailpage";
+import TaskListLayout from "./layouts/cardlayouts";
+
+
 
 
 function App() {
@@ -39,12 +50,15 @@ function App() {
            
                 {
                     path: "dashboard",
+                    // element: <UserLayout />,  
                     children: [
-                        { path: "iso", element: <ISOUser /> },
-                        { path: "erm", element: <ERMUser /> },
-                        { path: "pci", element: <PCIUser /> },
-                        { path: "vulnerability", element: <VulnerabilityUser /> },
-                        { path: "regulatory-compliance", element: <RCUser /> },
+                        // { path: "iso", element: <ISOUser /> },
+                        // { path: "erm", element: <ERMUser /> },
+                        // { path: "pci", element: <PCIUser /> },
+                        // { path: "vulnerability", element: <VulnerabilityUser /> },
+                        // { path: "regulatory-compliance", element: <RCUser /> },
+                         { path: ":slug", element: <TaskListLayout /> },
+                        
                     ],
                 },
             
@@ -62,12 +76,16 @@ function App() {
             element:<AdminLogin />
         },
         {
+            path: "/managerlog",
+            element: <ManagerLogin />
+        },
+        {
             path: "/",
             element: <UserSelection />,
         },
          {
-      path: "/login",
-      element: <Login />, 
+      path: "/userlogin",
+      element: <UserLogin />, 
     },
     {
       path: "/signup",
@@ -112,12 +130,14 @@ function App() {
                 },
                 {
                     path: "standards",
+                    // element: <StandardsLayout />,  
                     children: [
-            { path: "iso", element: <ISOPage /> },
-            { path: "erm", element: <ERMPage /> },
-            { path: "pci", element: <PCIPage /> },
-            { path: "vulnerability", element: <VulnerabilityPage /> },
-            { path: "regulatory-compliance", element: <RCPage /> },
+            // { path: "iso", element: <ISOPage /> },
+            // { path: "erm", element: <ERMPage /> },
+            // { path: "pci", element: <PCIPage /> },
+            // { path: "vulnerability", element: <VulnerabilityPage /> },
+            // { path: "regulatory-compliance", element: <RCPage /> },
+             { path: ":slug", element: <StandardDetailPage/> },
           ],
                 },
                
@@ -131,7 +151,20 @@ function App() {
                 },
             ],
         },
-        
+       {
+            path:"/manager-dashboard",
+            // element: <Layout />,
+            element: <ManagerSHF />,
+            children: [
+                 { index: true, element: <ManagerDashboard /> },
+                 { path: "standards", element: <ManagerStandardsPage /> },
+                { path: "team", element: <ManagerTeamPage /> },
+                { path: "tasks", element: <ManagerTasksPage /> },
+  ] 
+}
+
+          
+    
         
          
     ]);

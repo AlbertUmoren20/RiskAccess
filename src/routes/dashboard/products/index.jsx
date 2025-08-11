@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Box, TextField, Typography, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
+import { useStandards } from '@/contexts/standardsContext';
+import { Button, Box, TextField, Typography, Paper, CircularProgress } from '@mui/material';
+// import slugify from 'slugify';
 
 const ProductsPage = () => {
   const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
-  const [standards, setStandards] = useState([]);
+  const { standards, loading, createStandard } = useStandards();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    color: '#40E0D0', // Default color
+    color: '#40E0D0',
   });
 
   const handleCreateClick = () => {
@@ -30,17 +31,34 @@ const ProductsPage = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log('New Standard:', formData);
-    setStandards((prev) => [
-      ...prev, {
-        id: Date.now(), ...formData},
-    ])
-    // TODO: Add to the standards list
+  const handleSubmit = async () => {
+   const slug = formData.title
+      .toLowerCase()
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/[^\w-]+/g, ''); // Remove non-word characters
+      
+    const newStandard = {
+      title: formData.title,
+      description: formData.description,
+      color: formData.color,
+      slug: slug
+    };
+
+    const createdStandard = await createStandard(newStandard);
+    if (createdStandard) {
+      navigate(`/admin/standards/${createdStandard.slug}`);
+    }
     handleCloseForm();
   };
 
- 
+  const navigateToStandard = (standard) => {
+    // navigate(`/admin/standards/${slug}`);
+    if (!standard) return;
+     const path = standard.slug 
+      ? `/admin/standards/${standard.slug}`
+      : `/admin/standards/${standard.id}`;
+    navigate(path);
+  };
 
   return (
     <div style={{ position: 'relative' }}>
@@ -60,84 +78,71 @@ const ProductsPage = () => {
       )}
 
       <div style={{ opacity: showForm ? 0.3 : 1, transition: 'opacity 0.3s' }}>
-        <h1 className="title">Standard Page</h1>
-        <p className="text-gray-600">This is the standard page content.</p>
+        <h1 className="title">Standards Management</h1>
+        <p className="text-gray-600">Create and manage compliance standards</p>
 
-        <Box
-          display="grid"
-          gridTemplateColumns="repeat(2, auto)"
-          gap={2}
-          mt={2}
-          sx={{
-            '@media (max-width: 900px)': {
-              gridTemplateColumns: 'repeat(2, auto)',
-            },
-            '@media (max-width: 600px)': {
-              gridTemplateColumns: '1fr',
-            },
-          }}
-        >
-          
-          <Button variant="contained" color="primary" sx={{ py: 7.5, fontSize: '3.3rem' }} onClick={handleCreateClick}>
-            +
-          </Button>
-          <Button variant="contained" sx={{ py: 7.5, backgroundColor: '#40E0D0', fontSize: '1.3rem' }}onClick={() => navigate('/admin/standards/iso')}>
-            ISO 27001
-          </Button>
-          <Button variant="contained" color="secondary" sx={{ py: 7.5, fontSize: '1.3rem' }} onClick={() => navigate ('/admin/standards/vulnerability')}>
-            Vulnerability <br /> Assessment
-          </Button>
-          <Button variant="contained" color="success" sx={{ py: 7.5, fontSize: '1.3rem' }}  onClick={() => navigate('/admin/standards/pci')}>
-            PCI
-          </Button>
-          <Button variant="contained" color="warning" sx={{ py: 7.5, fontSize: '1.3rem' }} onClick={() => navigate('/admin/standards/erm')}>
-            ERM <br />(Enterprise Risk Management)
-          </Button>
-            <Button
-            variant="contained"
-            sx={{ py: 7.5, backgroundColor: '#FFB2B2', color: 'white', fontSize: '1.3rem' }} onClick={() => navigate ('/admin/standards/regulatory-compliance')}
-            >
-            Regulatory Compliance
-          </Button>
-
-           {/* Display standards */}
-      <Box display="grid"
-          gridTemplateColumns="repeat(2, auto)"
-          gap={2}
-          mt={2}
-           sx={{
-            '@media (max-width: 900px)': {
-              gridTemplateColumns: 'repeat(2, auto)',
-            },
-            '@media (max-width: 600px)': {
-              gridTemplateColumns: '1fr',
-            },
-          }}
+    {loading ? (
+          <Box display="flex" justifyContent="center" mt={4}>
+            <CircularProgress />
+          </Box>
+      ) : (
+          <Box
+            display="grid"
+            gridTemplateColumns="repeat(auto-fill, minmax(250px, 1fr))"
+            gap={3}
+            mt={3}
           >
-        {standards.length === 0 ? (
-          <Typography>No standards created yet.</Typography>
-        ) : (
-          standards.map((standard) => (
-            <Button
-              key={standard.id} 
-              sx={{
-                mb: 2,
-                py: 7.5,
-                fontSize: '1.3rem',
-                backgroundColor: standard.color,
-                color: '#fff'
-              }}
+            <Button 
+              variant="contained" 
+              sx={{ 
+                minHeight: 150, 
+                fontSize: '3rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }} 
+              onClick={handleCreateClick}
             >
-              <Typography variant="contained">{standard.title}</Typography>
-              {/* <Typography>{standard.description}</Typography> */}
+              +
             </Button>
-          ))
-        )}
-      </Box>
+            
+            {standards.map((standard) => (
+              <Button
+                key={standard.id}
+                variant="contained"
+                sx={{ 
+                  minHeight: 150,
+                  fontSize: '1.2rem',
+                  backgroundColor: standard.color,
+                  color: '#fff',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textTransform: 'none',
+                  textAlign: 'center',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 3,
+                    backgroundColor: standard.color
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+                onClick={() => standard && navigateToStandard(standard)}
 
-        </Box>
+              >
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {standard.title}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {standard.description}
+                </Typography>
+              </Button>
+            ))}
+          </Box>
+   )}
       </div>
-         
+      
       {/* Form modal */}
       {showForm && (
         <Paper
@@ -164,6 +169,7 @@ const ProductsPage = () => {
             value={formData.title}
             onChange={handleChange}
             margin="normal"
+            required
           />
           <TextField
             fullWidth
@@ -174,6 +180,7 @@ const ProductsPage = () => {
             margin="normal"
             multiline
             rows={3}
+            required
           />
           <Box mt={2}>
             <Typography variant="body1" mb={1}>
@@ -192,8 +199,13 @@ const ProductsPage = () => {
             <Button onClick={handleCloseForm} sx={{ mr: 1 }}>
               Cancel
             </Button>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Submit
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={handleSubmit}
+              disabled={!formData.title.trim()}
+            >
+              Create Standard
             </Button> 
           </Box>
         </Paper>

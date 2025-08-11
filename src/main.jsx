@@ -4,7 +4,7 @@
   import './index.css'
   import { createClient } from '@supabase/supabase-js'
   import { SessionContextProvider } from '@supabase/auth-helpers-react'
-  import { TaskProvider } from '@/contexts/taskcontext';
+  import { TaskProvider } from './contexts/TaskContext.jsx'
 
   const supabase = createClient(
     "https://oelqunglsskvxczyxdgp.supabase.co",

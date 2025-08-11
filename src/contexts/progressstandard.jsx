@@ -1,43 +1,37 @@
 import React from 'react';
 import { useTasks } from '@/contexts/taskcontext';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-const ProgressByStandard = () => {
-  const { tasks } = useTasks();
-
-  // Group tasks by standard
-  const standards = [...new Set(tasks.map(task => task.standard))];
-
-  const calculateProgress = (standard) => {
-    const filtered = tasks.filter(task => task.standard === standard);
-    const total = filtered.length;
-    const completed = filtered.filter(task => task.status === 'Completed').length;
-    const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
-    return { total, completed, percent };
-  };
+const ProgressStandard = ({ standards, tasks }) => {
+  // Calculate progress for each standard
+  const progressData = standards.map(standard => {
+    const standardTasks = tasks.filter(task => task.standard === standard.slug);
+    const totalTasks = standardTasks.length;
+    const completedTasks = standardTasks.filter(task => task.status === 'Completed').length;
+    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+    return {
+      name: standard.title,
+      progress: progress.toFixed(2)
+    };
+  });
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-md">
-      <h2 className="text-xl font-bold mb-4">Task Progress by Standard</h2>
-      {standards.map((standard) => {
-        const { total, completed, percent } = calculateProgress(standard);
-        return (
-          <div key={standard} className="mb-4">
-            <div className="flex justify-between mb-1">
-              <span className="font-medium">{standard}</span>
-              <span className="text-sm text-gray-500">{completed}/{total} completed</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-4">
-              <div
-                className="bg-blue-600 h-4 rounded-full transition-all duration-500"
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-            <p className="text-sm text-right mt-1">{percent}%</p>
-          </div>
-        );
-      })}
+    <div className="card bg-white rounded-xl shadow-md">
+      <div className="card-header p-4">
+        <p className="text-lg font-semibold text-gray-700">Task Progress by Standard</p>
+      </div>
+      <div className="card-body p-4">
+        <BarChart width={600} height={300} data={progressData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey="name" stroke="#1f2937" />
+          <YAxis stroke="#1f2937" />
+          <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#6b7280' }} />
+          <Legend />
+          <Bar dataKey="progress" fill="#8884d8" />
+        </BarChart>
+      </div>
     </div>
   );
 };
 
-export default ProgressByStandard;
+export default ProgressStandard;

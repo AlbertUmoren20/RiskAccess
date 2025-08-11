@@ -1,13 +1,80 @@
 import React from 'react';
 import TaskCard from '@/contexts/taskcard';
+import { useParams } from 'react-router-dom';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useState, useEffect } from 'react';
 
+const TaskListLayout = () => {
+   const { slug } = useParams();
+   const supabase = useSupabaseClient();
+  const [tasks, setTasks] = useState([]);
+  const [standard, setStandard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch standard details
+        const { data: standardData, error: standardError } = await supabase
+          .from('standards')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+          
+        if (standardError) throw standardError;
+        setStandard(standardData);
+        
+        // Fetch tasks for this standard
+        const { data: tasksData, error: tasksError } = await supabase
+          .from('tasks')
+          .select('*')
+          .eq('standard', slug);
+          
+        if (tasksError) throw tasksError;
+        setTasks(tasksData || []);
+        
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [slug, supabase]);
 
-const TaskListLayout = ({ tasks, title, description, standard }) => {
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
+
+  if (!standard) {
+    return (
+      <div className="text-center py-12">
+        <h3 className="mt-4 text-lg font-medium text-gray-900">Standard not found</h3>
+      </div>
+    );
+  }
+
   const stats = {
     completed: tasks.filter(t => t.status === 'Completed').length,
     inProgress: tasks.filter(t => t.status === 'In Progress').length,
     overdue: tasks.filter(t => t.status === 'Overdue').length
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6">
@@ -15,8 +82,8 @@ const TaskListLayout = ({ tasks, title, description, standard }) => {
         <header className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-              <p className="mt-2 text-gray-600">{description}</p>
+              <h1 className="text-3xl font-bold text-gray-900">{standard.title}</h1>
+              <p className="mt-2 text-gray-600">{standard.description}</p>
             </div>
             <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
           </div>
@@ -43,7 +110,7 @@ const TaskListLayout = ({ tasks, title, description, standard }) => {
               <div>
                 <h2 className="text-lg font-semibold text-gray-800">Task List</h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  Showing {tasks.length} tasks for {title}
+                  Showing {tasks.length} tasks for {standard.title}
                 </p>
               </div>
               

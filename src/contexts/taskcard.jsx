@@ -1,4 +1,7 @@
 import React from 'react';
+import { useTasks } from './taskcontext';
+import { useState } from 'react';
+
 
 const statusColors = {
   'Completed': 'bg-green-100 text-green-800',
@@ -32,6 +35,7 @@ const { updateTaskStatus } = useTasks();
         <div className="mt-4">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-500">Status</span>
+            
             <div className="relative">
               <button
                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
