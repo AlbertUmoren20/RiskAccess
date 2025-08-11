@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStandards } from '@/contexts/standardsContext';
+import { useStandards } from './contexts/standardscontext';
 import { Button, Box, TextField, Typography, Paper, CircularProgress } from '@mui/material';
 // import slugify from 'slugify';
 
