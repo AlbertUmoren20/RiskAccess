@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import { useStandards } from '@/contexts/standardsContext';
+import { useStandards } from '@/contexts/standardscontext.jsx';
 import { CircularProgress } from '@mui/material';
 
 function Page() {
