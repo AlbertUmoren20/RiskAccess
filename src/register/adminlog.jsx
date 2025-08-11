@@ -5,6 +5,8 @@ import * as yup from "yup";
 import { useSupabaseClient, useSessionContext } from '@supabase/auth-helpers-react';
 import { Lock, User, Mail, Eye, EyeOff, Settings } from 'lucide-react';
 
+import { useState } from 'react';
+
 export function AdminLogin() {
   const navigate = useNavigate();
   const supabase = useSupabaseClient();

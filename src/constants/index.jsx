@@ -291,29 +291,26 @@ export const mockDataTeam = [
     {
     id: 1,
     name: "Albert Umoren",
-    email: "albertumoren2004@gmail.com",
+    email: "Albert.Umoren@etranzact.com",
     age: 21,
     phone: "09066304158",
-    access: "user",
+    access: "Admin",
   },
   
-
- 
-
-//   {
-//     id: 8,
-//     name: "Rossini Frances",
-//     email: "rossinifrances@gmail.com",
-//     age: 36,
-//     phone: "(222)444-5555",
-//     access: "user",
-//   },
-//   {
-//     id: 9,
-//     name: "Harvey Roxie",
-//     email: "harveyroxie@gmail.com",
-//     age: 65,
-//     phone: "(444)555-6239",
-//     access: "admin",
-//   },
+  {
+    id: 8,
+    name: " Ezechukwu Anozie",
+    email: "Ezechukwu.Anozie@etranzact.com",
+    age: 36,
+    phone: "(222)444-5555",
+    access: "user",
+  },
+  {
+    id: 9,
+    name: "Oyinkansola Awotiku",
+    email: "Oyinkansola.Awotiku@etranzact.com",
+    age: 35,
+    phone: "(444)555-6239",
+    access: "user",
+  },
 ];
