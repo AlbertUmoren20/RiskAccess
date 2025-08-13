@@ -149,7 +149,7 @@ const handleLogin = async (e) => {
             </div>
           </div>
           
-          <div className="mb-5">
+          {/* <div className="mb-5">
             <label htmlFor="team-code" className="block text-gray-700 text-sm font-medium mb-2">
               Team Code
             </label>
@@ -167,7 +167,7 @@ const handleLogin = async (e) => {
                 required
               />
             </div>
-          </div>
+          </div> */}
           
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">

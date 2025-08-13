@@ -84,7 +84,7 @@ const NewCustomerPage = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => router.push('/admin/customers')}
+            onClick={() => navigate('/admin/customers')}
             className="w-full"
           >
             Back to Customers
