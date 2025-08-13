@@ -39,6 +39,8 @@ import RCUser from "./user/tools/rcuser";
 import VulnerabilityUser from "./user/tools/vulnerabilityuser";
 import StandardDetailPage from "./routes/dashboard/products/tools/standarddetailpage";
 import TaskListLayout from "./layouts/cardlayouts";
+import ForgotPassword from "./register/forgotpassword";
+import UpdatePasswordPage from "./register/updatepassword";
 
 
 
@@ -90,6 +92,14 @@ function App() {
     {
       path: "/signup",
       element: <SignUp />,
+    },
+    {
+        path:"/forgot-password",    
+        element: <ForgotPassword />
+    },
+    {
+        path: "/update-password",
+        element: <UpdatePasswordPage />
     },
 
         {
@@ -162,6 +172,7 @@ function App() {
                 { path: "tasks", element: <ManagerTasksPage /> },
   ] 
 }
+        
 
           
     

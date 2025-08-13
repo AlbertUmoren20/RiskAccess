@@ -4,15 +4,24 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import { useSupabaseClient, useSessionContext } from '@supabase/auth-helpers-react';
 import { Lock, User, Mail, Eye, EyeOff, Settings } from 'lucide-react';
-
+import { useSupabaseLogin } from './sharedlogin';
+import ForgotPassword from './forgotpassword'; 
 import { useState } from 'react';
 
 export function AdminLogin() {
   const navigate = useNavigate();
-  const supabase = useSupabaseClient();
-  const { isLoading, session } = useSessionContext();
+  const { login } = useSupabaseLogin();
+   const supabase = useSupabaseClient();  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  // const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useSessionContext();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+     const [sessionReady, setSessionReady] = useState(false);
+    
 
   if (isLoading) {
     return (
@@ -24,7 +33,62 @@ export function AdminLogin() {
 
   const passwordRegExp = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
   const emailRegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
+    try {
+      // Step 1: Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Fetch the matching team member row
+      const { data: teamMember, error: teamError } = await supabase
+        .from("team_members")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle(); // prevents "multiple or no rows" crash
+
+      if (teamError) {
+        setError(teamError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!teamMember) {
+        setError("No matching team member found in database.");
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Successful login
+      console.log("Auth data:", authData);
+      console.log("Team member:", teamMember);
+      navigate("/admin");
+
+
+      // You can redirect based on `teamMember.access` here
+      // Example:
+      // if (teamMember.access === "admin") navigate("/admin-dashboard");
+      // else navigate("/user-dashboard");
+
+    } catch (err) {
+      console.error(err);
+      setError("Unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handleFormSubmit = async (values) => {
     setIsSubmitting(true);
     try {
@@ -68,6 +132,19 @@ export function AdminLogin() {
       .required("Password is required"),
   });
 
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await login(email, password);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 p-4">
       <div className="w-full max-w-md">
@@ -92,9 +169,9 @@ export function AdminLogin() {
                 touched,
                 handleBlur,
                 handleChange,
-                handleSubmit,
+                
               }) => (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-6">
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <div className="relative">
@@ -138,6 +215,7 @@ export function AdminLogin() {
                         } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500`}
                       />
                       <button
+                        disabled={isLoading}
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
@@ -147,6 +225,7 @@ export function AdminLogin() {
                         ) : (
                           <Eye className="h-5 w-5 text-gray-400 hover:text-gray-500" />
                         )}
+                        {isLoading ? "Logging in..." : ""}
                       </button>
                     </div>
                     {touched.password && errors.password && (
@@ -167,10 +246,11 @@ export function AdminLogin() {
                       </label>
                     </div>
                     <div className="text-sm">
-                      <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                      <a href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
                         Forgot password?
                       </a>
                     </div>
+                  
                   </div>
                   
                   <div>

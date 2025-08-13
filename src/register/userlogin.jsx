@@ -1,22 +1,98 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, Eye, EyeOff, Shield, Users } from "lucide-react";
+import { useSupabaseLogin } from "./sharedlogin"
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 const UserLogin = () => {
+   const supabase = useSupabaseClient(); 
   const navigate = useNavigate();
+    const { login } = useSupabaseLogin();
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const { email, password } = credentials;
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
 
-  const handleLogin = (e) => {
+  // const handleLogin = (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   // Simulate login process
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     navigate("/dashboard");
+  //   }, 1500);
+  // };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      // Step 1: Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Fetch the matching team member row
+      const { data: teamMember, error: teamError } = await supabase
+        .from("team_members")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle(); // prevents "multiple or no rows" crash
+
+      if (teamError) {
+        setError(teamError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!teamMember) {
+        setError("No matching team member found in database.");
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Successful login
+      console.log("Auth data:", authData);
+      console.log("Team member:", teamMember);
+      navigate("/userHome");
+
+
+      // You can redirect based on `teamMember.access` here
+      // Example:
+      // if (teamMember.access === "admin") navigate("/admin-dashboard");
+      // else navigate("/user-dashboard");
+
+    } catch (err) {
+      console.error(err);
+      setError("Unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login process
-    setTimeout(() => {
+    try {
+      await login(email, password);
+    } catch (err) {
+      alert(err.message);
+    } finally {
       setIsLoading(false);
-      navigate("/dashboard");
-    }, 1500);
+    }
   };
 
   return (
@@ -72,16 +148,20 @@ const UserLogin = () => {
                 onChange={(e) => setCredentials({...credentials, password: e.target.value})}
                 required
               />
-              <button
+              <button 
+                disabled={isLoading} 
                 type="button"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 onClick={() => setShowPassword(!showPassword)}
+                  
               >
+
                 {showPassword ? (
                   <EyeOff className="text-gray-400 hover:text-gray-600" size={18} />
                 ) : (
                   <Eye className="text-gray-400 hover:text-gray-600" size={18} />
                 )}
+                    {isLoading ? "Logging in..." : "Login"}
               </button>
             </div>
           </div>
@@ -100,7 +180,7 @@ const UserLogin = () => {
               </label>
             </div>
             <div className="text-sm">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <a href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Forgot password?
               </a>
             </div>
@@ -112,6 +192,7 @@ const UserLogin = () => {
               isLoading ? "opacity-80 cursor-not-allowed" : ""
             }`}
             disabled={isLoading}
+            
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -124,6 +205,7 @@ const UserLogin = () => {
             ) : (
               "Sign in to Dashboard"
             )}
+            
           </button>
         </form>
         

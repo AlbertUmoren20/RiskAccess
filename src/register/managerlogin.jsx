@@ -1,23 +1,86 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, Eye, EyeOff, Users, Shield } from "lucide-react";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSupabaseLogin } from "./sharedlogin";
 
 const ManagerLogin = () => {
   const navigate = useNavigate();
+  const supabase = useSupabaseClient();
+  const { login } = useSupabaseLogin();
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({ email: "", password: "", teamCode: "" });
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
+  const { email, password, teamCode } = credentials;
 
-  const handleLogin = (e) => {
+const handleLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true); 
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
+    setError("");
+    setLoading(true);
+
+    try {
+      // Step 1: Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Fetch the matching team member row
+      const { data: teamMember, error: teamError } = await supabase
+        .from("team_members")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle(); // prevents "multiple or no rows" crash
+
+      if (teamError) {
+        setError(teamError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!teamMember) {
+        setError("No matching team member found in database.");
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Successful login
+      console.log("Auth data:", authData);
+      console.log("Team member:", teamMember);
       navigate("/manager-dashboard");
-    }, 1500);
+
+
+      // You can redirect based on `teamMember.access` here
+      // Example:
+      // if (teamMember.access === "admin") navigate("/admin-dashboard");
+      // else navigate("/user-dashboard");
+
+    } catch (err) {
+      console.error(err);
+      setError("Unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
   };
+  // const handleLogin = (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true); 
+  //   // Simulate login process
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     navigate("/manager-dashboard");
+  //   }, 1500);
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-4">
@@ -120,7 +183,7 @@ const ManagerLogin = () => {
               </label>
             </div>
             <div className="text-sm">
-              <a href="#" className="font-medium text-emerald-600 hover:text-emerald-500">
+              <a href="/forgot-password" className="font-medium text-emerald-600 hover:text-emerald-500">
                 Forgot password?
               </a>
             </div>
