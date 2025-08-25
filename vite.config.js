@@ -15,7 +15,10 @@ export default defineConfig({
   // Add this for Vercel deployment
   build: {
     outDir: 'dist',
-    sourcemap: false
+    sourcemap: false,
+     css: {
+      devSourcemap: false
+    }
   },
   // Ensure Vite serves the app correctly
   base: './'
