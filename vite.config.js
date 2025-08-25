@@ -12,4 +12,11 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  // Add this for Vercel deployment
+  build: {
+    outDir: 'dist',
+    sourcemap: false
+  },
+  // Ensure Vite serves the app correctly
+  base: './'
 });
