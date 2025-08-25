@@ -11,6 +11,15 @@
   //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lbHF1bmdsc3Nrdnhjenl4ZGdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MzA0NzQsImV4cCI6MjA2NjIwNjQ3NH0.x1xtaWa3Oa4dTozmLsjqe0uz-FtqfjgWhhPei_AosSE"
   // )
   // Replace hardcoded values with:
+
+  // Add this before creating the Supabase client
+console.log('Environment check:', {
+  hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
+  hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+  url: import.meta.env.VITE_SUPABASE_URL ? ' Loaded' : 'Missing',
+  key: import.meta.env.VITE_SUPABASE_ANON_KEY ? ' Loaded' : ' Missing'
+});
+
     const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY
