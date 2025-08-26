@@ -1,13 +1,6 @@
 // src/utils/login.js
-import { createClient } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
-// import { useState } from "react";
-// import React from "react";
-
-const supabase = createClient(
-  "https://oelqunglsskvxczyxdgp.supabase.co",
-   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lbHF1bmdsc3Nrdnhjenl4ZGdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MzA0NzQsImV4cCI6MjA2NjIwNjQ3NH0.x1xtaWa3Oa4dTozmLsjqe0uz-FtqfjgWhhPei_AosSE"
-);
+import { supabase } from "@/lib/supabaseClient";
 
 export const useSupabaseLogin = () => {
   const navigate = useNavigate();

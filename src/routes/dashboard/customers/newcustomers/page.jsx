@@ -2,16 +2,10 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, FormControl, InputLabel, MenuItem, Select, FormHelperText, CircularProgress } from '@mui/material';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { createClient } from '@supabase/supabase-js';
 import { UserPlus, ArrowLeft } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { supabase } from '@/lib/supabaseClient';
 
-
-// Initialize Supabase client (move to separate config file in production)
-const supabase = createClient(
- "https://oelqunglsskvxczyxdgp.supabase.co",
-   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lbHF1bmdsc3Nrdnhjenl4ZGdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MzA0NzQsImV4cCI6MjA2NjIwNjQ3NH0.x1xtaWa3Oa4dTozmLsjqe0uz-FtqfjgWhhPei_AosSE"
-);
 
 const NewCustomerPage = () => {
    const navigate = useNavigate();
@@ -258,7 +252,6 @@ const NewCustomerPage = () => {
   helperText={touched.confirmPassword && errors.confirmPassword}
   className="dark:[&_.MuiInputLabel-root]:text-gray-300 dark:[&_.MuiInputBase-input]:text-white"
 />
-
                   
                 </div>
 
@@ -290,7 +283,7 @@ const NewCustomerPage = () => {
 };
 
 // Validation schemas and initial values remain the same
-const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
+const phoneRegExp = /^(\+(?:[0-9]{1,3})[- ]?)?(?:\([0-9]{2,3}\)[- ]?|[0-9]{2,4}[- ]?)*[0-9]{3,4}[- ]?[0-9]{3,4}$/;
 const passwordRegExp = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
 
 const checkoutSchema = yup.object().shape({
