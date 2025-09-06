@@ -15,7 +15,7 @@ const UserSelection = () => {
           </div>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-          Risk Monitoring System
+          Risk & Compliance Management System
         </h1>
         <p className="text-gray-600 max-w-xl mx-auto">
           Select your role to access the system dashboard and management tools

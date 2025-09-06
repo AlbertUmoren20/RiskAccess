@@ -172,11 +172,6 @@ function App() {
                 { path: "tasks", element: <ManagerTasksPage /> },
   ] 
 }
-        
-
-          
-    
-        
          
     ]);
 

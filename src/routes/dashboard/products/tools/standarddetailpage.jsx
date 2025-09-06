@@ -371,6 +371,7 @@ const fetchTeamMembers = async () => {
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[task.status]}`}>
                                 {task.status}
                               </span>
+                              {task.status !== "Completed" && (
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                 daysRemaining < 0 ? 'bg-red-100 text-red-800' : 
                                 daysRemaining < 3 ? 'bg-yellow-100 text-yellow-800' : 
@@ -380,6 +381,7 @@ const fetchTeamMembers = async () => {
                                   ? `Overdue by ${Math.abs(daysRemaining)} days` 
                                   : `${daysRemaining} days remaining`}
                               </span>
+                                )}
                             </div>
                           </div>
                           

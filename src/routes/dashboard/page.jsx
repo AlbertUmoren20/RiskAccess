@@ -377,6 +377,7 @@ const DashboardPage = () => {
                       <div className="mt-1">
                         <span className="mr-2">Due:</span>
                         {format(new Date(task.end), 'MMM dd, yyyy')}
+                          {task.status !== "Completed" && (
                         <span className={`ml-2 ${
                           daysRemaining < 0 ? 'text-red-600' : 
                           daysRemaining < 3 ? 'text-yellow-600' : 'text-green-600'
@@ -385,6 +386,7 @@ const DashboardPage = () => {
                             ? `${Math.abs(daysRemaining)} days overdue` 
                             : `${daysRemaining} days left`})
                         </span>
+                          )}
                       </div>
                     </div>
                   </div>
