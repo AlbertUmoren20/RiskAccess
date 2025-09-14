@@ -27,21 +27,57 @@ const TskDash = () => {
     updateTaskStatus(taskId, newStatus);
   };
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    const fetchUserTasks = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.email) {
-        const filteredTasks = tasks.filter((task) => {
-          const member = mockDataTeam.find((m) => m.name === task.assignedTo);
-          return member?.email === user.email;
-        });
-        setUserTasks(filteredTasks);
-          console.log('Current user:', user);
-      }
-    };
-    fetchUserTasks();
-  }, [tasks, supabase]);
+  //   const fetchUserTasks = async () => {
+  //     const { data: { user } } = await supabase.auth.getUser();
+  //     if (user?.email) {
+  //       const filteredTasks = tasks.filter((task) => {
+  //         const member = mockDataTeam.find((m) => m.name === task.assignedTo);
+  //         return member?.email === user.email;
+  //       });
+  //       setUserTasks(filteredTasks);
+  //         console.log('Current user:', user);
+  //     }
+  //   };
+  //   fetchUserTasks();
+  // }, [tasks, supabase]);
+
+  useEffect(() => {
+  const fetchUserTasks = async () => {
+        console.log("fetchUserTasks starting...");
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) {
+      console.error("Error getting user:", error.message);
+      return;
+    }
+
+    if (user?.email) {
+      // normalize case sensitivity
+      const email = user.email.toLowerCase();
+
+      // filter tasks that include this user’s email or name
+      const filteredTasks = tasks.filter((task) => {
+        if (!task.assigned_to) return false;
+
+        // Split string by comma, trim spaces, normalize
+        const assignedList = task.assigned_to
+          .split(",")
+          .map((entry) => entry.trim().toLowerCase());
+
+        return assignedList.includes(email);
+      });
+
+      setUserTasks(filteredTasks);
+    
+      console.log("Current user:", user.email);
+      console.log("Filtered tasks:", filteredTasks);
+    }
+  };
+
+  fetchUserTasks();
+}, [tasks, supabase]);
+
 
 
   return (
