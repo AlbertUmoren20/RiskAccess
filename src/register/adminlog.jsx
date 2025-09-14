@@ -30,7 +30,6 @@ export function AdminLogin() {
       </div>
     );
   }
-
   const passwordRegExp = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
   const emailRegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const handleLogin = async (e) => {
@@ -70,7 +69,7 @@ const handleLogin = async (e) => {
         return;
       }
 
-      // ✅ Successful login
+      // Successful login
       console.log("Auth data:", authData);
       console.log("Team member:", teamMember);
       navigate("/admin");
@@ -310,7 +309,7 @@ const handleLogin = async (e) => {
           <div className="bg-gray-50 px-8 py-6 rounded-b-2xl">
             <div className="text-center text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link to="#" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Request access
               </Link>
             </div>

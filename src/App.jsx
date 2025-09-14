@@ -29,6 +29,7 @@ import ManagerDashboard from "./manager/managerdash";
 import ManagerStandardsPage from "./contexts/managerstandard";
 import ManagerTeamPage from "./routes/dashboard/customers/managerteampage";
 import ManagerTasksPage from "./contexts/managertask";
+import Managerview_task from "./contexts/managerview_task";
 import { StandardsProvider } from "./contexts/standardscontext";
 import TskDash from './user/tskdash';
 import Page from "./user/page"
@@ -41,6 +42,7 @@ import StandardDetailPage from "./routes/dashboard/products/tools/standarddetail
 import TaskListLayout from "./layouts/cardlayouts";
 import ForgotPassword from "./register/forgotpassword";
 import UpdatePasswordPage from "./register/updatepassword";
+
 
 
 
@@ -170,6 +172,7 @@ function App() {
                  { path: "standards", element: <ManagerStandardsPage /> },
                 { path: "team", element: <ManagerTeamPage /> },
                 { path: "tasks", element: <ManagerTasksPage /> },
+                { path: "view-tasks", element: <Managerview_task /> },
   ] 
 }
          

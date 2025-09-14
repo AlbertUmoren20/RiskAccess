@@ -74,6 +74,18 @@ export default function ManagerSHF() {
           </NavLink>
 
           <NavLink
+            to="/manager-dashboard/view-tasks"
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 p-2 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20",
+                isActive && "bg-blue-50 text-blue-600 dark:bg-blue-900/20"
+              )
+            }
+          >
+            <FileText size={22} />
+            {!collapsed && <span>View Tasks</span>}
+          </NavLink>
+          <NavLink
             to="/manager-dashboard/tasks"
             className={({ isActive }) =>
               cn(
@@ -83,7 +95,7 @@ export default function ManagerSHF() {
             }
           >
             <FileText size={22} />
-            {!collapsed && <span>Tasks</span>}
+            {!collapsed && <span>Create Tasks</span>}
           </NavLink>
         </nav>
       </div>

@@ -1,10 +1,10 @@
-  import { StrictMode } from 'react'
-  import { createRoot } from 'react-dom/client'
-  import App from './App.jsx'
-  import './index.css'
-  import { SessionContextProvider } from '@supabase/auth-helpers-react'
-  import { TaskProvider } from './contexts/taskcontext.jsx'
-  import { supabase } from './lib/supabaseClient'
+    import { StrictMode } from 'react'
+    import { createRoot } from 'react-dom/client'
+    import App from './App.jsx'
+    import './index.css'
+    import { SessionContextProvider } from '@supabase/auth-helpers-react'
+    import { TaskProvider } from './contexts/taskcontext.jsx'
+    import { supabase } from './lib/supabaseClient'
 
   // Add debug logs
   console.log('Supabase client initialized:', !!supabase)

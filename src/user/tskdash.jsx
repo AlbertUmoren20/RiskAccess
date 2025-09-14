@@ -28,6 +28,7 @@ const TskDash = () => {
   };
 
   useEffect(() => {
+
     const fetchUserTasks = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.email) {
@@ -36,6 +37,7 @@ const TskDash = () => {
           return member?.email === user.email;
         });
         setUserTasks(filteredTasks);
+          console.log('Current user:', user);
       }
     };
     fetchUserTasks();
@@ -47,7 +49,7 @@ const TskDash = () => {
       <h1 className="dashboard-title">Task Dashboard</h1>
       <div className="task-sections">
         <div className="task-section">
-          <h2 className="section-title">Assigned Tasks</h2>
+          <h2 className="section-title">Assigned Task</h2>
           <div className="task-list">
             {userTasks.length > 0 ? (
               userTasks.map((task) => (

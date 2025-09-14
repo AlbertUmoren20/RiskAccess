@@ -43,7 +43,7 @@ const { updateTaskStatus } = useTasks();
                 }`}
                 onClick={() => setShowStatusMenu(!showStatusMenu)}
               >
-                {task.status} ▼
+                {task.status}
               </button>
               
               {showStatusMenu && (
@@ -68,9 +68,7 @@ const { updateTaskStatus } = useTasks();
             <h3 className="font-bold text-lg text-gray-800">{task.summary}</h3>
             <p className="text-sm text-gray-500 mt-1">ID: {task.id}</p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[task.status]}`}>
-            {task.status}
-          </span>
+          <span className={`px-3 rounded-full text-xs font-semibold ${statusColors[task.status]}`}/>
         </div>
         
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -85,7 +83,7 @@ const { updateTaskStatus } = useTasks();
           <div>
             <p className="text-xs text-gray-500">Priority</p>
             <p className={`font-semibold ${priorityColors[task.priority]}`}>
-              {task.priority} Priority
+              {task.priority}
             </p>
           </div>
           
