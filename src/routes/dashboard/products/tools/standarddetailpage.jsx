@@ -303,8 +303,8 @@ const fetchTeamMembers = async () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Assign To Team Members
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {mockDataTeam.map(member => (
+                {/* <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {teamMembers.map(member => (
                     <div 
                       key={member.id}
                       onClick={() => toggleTeamMember(member.name)}
@@ -320,7 +320,29 @@ const fetchTeamMembers = async () => {
                       <span className="text-sm font-medium">{member.name}</span>
                     </div>
                   ))}
-                </div>
+                </div> */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+  {teamMembers.map(member => {
+    const fullName = `${member.first_name} ${member.last_name}`;
+    return (
+      <div 
+        key={member.id}
+        onClick={() => toggleTeamMember(fullName)}
+        className={`flex items-center p-3 rounded-lg border cursor-pointer transition ${
+          newTask.assigned_to.includes(fullName)
+            ? 'bg-indigo-100 border-indigo-500'
+            : 'bg-white border-gray-300 hover:bg-gray-50'
+        }`}
+      >
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-700 font-medium mr-2">
+          {member.first_name.charAt(0)}
+        </div>
+        <span className="text-sm font-medium">{fullName}</span>
+      </div>
+    );
+  })}
+</div>
+
               </div>
               
               <div className="flex justify-end space-x-3">
