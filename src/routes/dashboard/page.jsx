@@ -6,6 +6,7 @@ import {
   Activity, Users, FileText, ClipboardList, 
   CheckCircle, Clock, AlertCircle, TrendingUp 
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = () => {
   const supabase = useSupabaseClient();
@@ -15,6 +16,7 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeRange, setTimeRange] = useState('week'); // 'day', 'week', 'month'
+  const navigate = useNavigate();
 
   // Fetch data from Supabase
   useEffect(() => {
@@ -58,7 +60,7 @@ const DashboardPage = () => {
     
     const taskCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
     const overdueRate = totalTasks > 0 ? Math.round((overdueTasks / totalTasks) * 100) : 0;
-    
+ 
     return {
       totalTasks,
       completedTasks,
@@ -154,6 +156,12 @@ const DashboardPage = () => {
       </div>
     );
   }
+     
+   const handleViewAll = () => {
+      navigate("/admin/reports");
+    }
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -340,7 +348,9 @@ const DashboardPage = () => {
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-gray-800">Recent Activity</h2>
-              <button className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+              <button 
+              onClick={handleViewAll}
+              className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
                 View All
               </button>
               

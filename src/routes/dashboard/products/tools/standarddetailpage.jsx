@@ -26,7 +26,7 @@ export default function StandardDetailPage() {
 
   // --- NEW state for compact list ---
   const [showAllMembers, setShowAllMembers] = useState(false);
-  const DEFAULT_VISIBLE_MEMBERS = 5;
+  const DEFAULT_VISIBLE_MEMBERS = 10;
 
   // Fetch standard + tasks
   useEffect(() => {
@@ -106,6 +106,29 @@ export default function StandardDetailPage() {
         return;
       }
 
+      //send emails to assigned members
+    for (let fullName of newTask.assigned_to) {
+      const member = teamMembers.find(
+        m => `${m.first_name} ${m.last_name}` === fullName
+      );
+
+      if (member?.email) {
+        await fetch("/api/send-task-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: member.email,
+            name: fullName,
+            standard: standard.title,
+            title: newTask.title,
+            start: newTask.start,
+            end: newTask.end,
+            frequency: getFrequency(newTask.start, newTask.end)
+          }),
+        });
+      }
+    }
+
       setNewTask({
         title: '',
         start: new Date(),
@@ -182,7 +205,7 @@ export default function StandardDetailPage() {
       Coordinator: t.assigned_to,
       Frequency: getFrequency(t.start, t.end),
       Status: t.status || 'Not specified',
-      Timeframe: `${t.start ? new Date(t.start).toLocaleString() : 'N/A'} – ${t.end ? new Date(t.end).toLocaleString() : 'N/A'}`
+      Timeframe: `${t.start ? new Date(t.start).toLocaleString() : 'N/A'} - ${t.end ? new Date(t.end).toLocaleString() : 'N/A'}`
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -384,7 +407,7 @@ export default function StandardDetailPage() {
                       <td className="border px-4 py-2">{task.title}</td>
                       <td className="border px-4 py-2">{task.assigned_to}</td>
                       <td className="border px-4 py-2">
-                        {task.start ? new Date(task.start).toLocaleString() : 'N/A'} – {task.end ? new Date(task.end).toLocaleString() : 'N/A'}
+                        {task.start ? new Date(task.start).toLocaleString() : 'N/A'} - {task.end ? new Date(task.end).toLocaleString() : 'N/A'}
                       </td>
                       <td className="border px-4 py-2">{getFrequency(task.start, task.end)}</td>
                       <td className="border px-4 py-2">{task.status}</td>

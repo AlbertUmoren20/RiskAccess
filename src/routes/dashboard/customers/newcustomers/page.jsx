@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { UserPlus, ArrowLeft } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { supabase } from '@/lib/supabaseClient';
-
+import { Resend } from 'resend';
 
 const NewCustomerPage = () => {
    const navigate = useNavigate();
@@ -13,6 +13,7 @@ const NewCustomerPage = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [formValues, setFormValues] = useState(initialValues); // Store form values for success message
+  
   const handleNavigation = () => {
     navigate('/admin/customers'); 
   }
@@ -52,6 +53,16 @@ const NewCustomerPage = () => {
         }]);
 
       if (profileError) throw profileError;
+        await fetch('/functions/handler', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+        email: values.email,
+        firstName: values.firstName,
+        password: values.password,
+        }),
+      });
+        if (!response.ok) throw new Error("Failed to send welcome email");
 
       setSuccess(true);
       setTimeout(() => router.push('/admin/customers'), 2000);
@@ -61,6 +72,8 @@ const NewCustomerPage = () => {
       setLoading(false);
     }
   };
+
+  
 
   if (success) {
     return (
@@ -81,7 +94,7 @@ const NewCustomerPage = () => {
             onClick={() => navigate('/admin/customers')}
             className="w-full"
           >
-            Back to Customers
+            Back to Team
           </Button>
         </Box>
       </Box>

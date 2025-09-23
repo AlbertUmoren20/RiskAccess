@@ -8,6 +8,7 @@ import NewCustomerPage from "@/routes/dashboard/customers/newcustomers/page";
 import Standards from "./routes/dashboard/products";
 import NewStandards from "./routes/dashboard/newproducts";
 import Calendar from "./routes/dashboard/calendar"
+import ReportPage from "./routes/dashboard/report/reportPage";
 // import { ISOPage } from "./routes/dashboard/products/tools/iso";
 // import { ERMPage } from "./routes/dashboard/products/tools/erm";
 // import { PCIPage } from "./routes/dashboard/products/tools/pci";
@@ -42,9 +43,6 @@ import StandardDetailPage from "./routes/dashboard/products/tools/standarddetail
 import TaskListLayout from "./layouts/cardlayouts";
 import ForgotPassword from "./register/forgotpassword";
 import UpdatePasswordPage from "./register/updatepassword";
-
-
-
 
 
 function App() {
@@ -118,7 +116,7 @@ function App() {
                 },
                 {
                     path: "reports",
-                    element: <h1 className="title">Reports</h1>,
+                    element: <ReportPage/>,
                 },
                 {
                      path: "customers",
