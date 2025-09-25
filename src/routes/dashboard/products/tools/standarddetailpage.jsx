@@ -185,16 +185,17 @@ export default function StandardDetailPage() {
     'In Progress': 'bg-blue-100 text-blue-800',
     'Not Started': 'bg-gray-100 text-gray-800',
     'Overdue': 'bg-red-100 text-red-800',
-    'Pending Review': 'bg-yellow-100 text-yellow-800'
+    // 'Pending Review': 'bg-yellow-100 text-yellow-800'
   };
 
   const getFrequency = (start, end) => {
     const days = Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
     if (days <= 1) return "Daily";
-    if (days <= 7) return "Weekly";
-    if (days <= 30) return "Monthly";
-    if (days <= 180) return "Bi-Annually";
-    return "Annually";
+  if (days <= 7) return "Weekly";
+  if (days <= 30) return "Monthly";
+  if (days <= 90) return "Quarterly";  
+  if (days <= 180) return "Bi-Annually";
+  return "Annually";
   };
 
   // --- Export to Excel handler ---
