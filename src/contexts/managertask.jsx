@@ -21,7 +21,7 @@ export default function ManagerTasksPage({ teamMembers }) {
     'In Progress': 'bg-blue-100 text-blue-800',
     'Not Started': 'bg-gray-100 text-gray-800',
     'Overdue': 'bg-red-100 text-red-800',
-    'Pending Review': 'bg-yellow-100 text-yellow-800'
+    // 'Pending Review': 'bg-yellow-100 text-yellow-800'
   };
 
   const toggleTeamMember = (name) => {
@@ -31,6 +31,7 @@ export default function ManagerTasksPage({ teamMembers }) {
         ? prev.assigned_to.filter(m => m !== name)
         : [...prev.assigned_to, name]
     }));
+    console.log("Teammembers : ", teamMembers )
   };
 
   const handleAddTask = async () => {
@@ -119,7 +120,7 @@ export default function ManagerTasksPage({ teamMembers }) {
           <label className="block text-sm font-medium mb-2">Assign To Team Members</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
             {teamMembers?.map(member => {
-              const displayName = member?.name || member?.full_name || 'Unknown';
+              const displayName = member?.name || member?.full_name || 'No Name';
               return (
                 <div
                   key={member.id}
@@ -139,9 +140,9 @@ export default function ManagerTasksPage({ teamMembers }) {
             })}
           </div>
 
-          <Button variant="contained" color="success" onClick={handleAddTask}>
+          {/* <Button variant="contained" color="success" onClick={handleAddTask}>
             Create Task
-          </Button>
+          </Button> */}
         </Box>
       )}
 
