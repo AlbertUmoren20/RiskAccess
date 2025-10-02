@@ -63,7 +63,7 @@ export default function StandardDetailPage() {
   // Fetch team members
   const fetchTeamMembers = async () => {
     try {
-      setLoading(true);
+            setLoading(true);
       let query = supabase.from('team_members').select('*');
       const { data, error: fetchError } = await query;
       if (fetchError) throw fetchError;
@@ -441,7 +441,7 @@ export default function StandardDetailPage() {
                       {task.start ? new Date(task.start).toLocaleString() : 'N/A'} – {task.end ? new Date(task.end).toLocaleString() : 'N/A'}
                     </p>
                     <span className={`mt-2 inline-block px-2 py-1 rounded text-xs ${statusColors[task.status] || 'bg-gray-100 text-gray-800'}`}>{task.status}</span>
-                    {daysRemaining < 0 && <span className="ml-2 text-red-600 text-xs">Overdue</span>}
+                    
                   </div>
                 );
               })}
