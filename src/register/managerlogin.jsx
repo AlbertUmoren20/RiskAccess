@@ -60,10 +60,7 @@ const handleLogin = async (e) => {
       navigate("/manager-dashboard");
 
 
-      // You can redirect based on `teamMember.access` here
-      // Example:
-      // if (teamMember.access === "admin") navigate("/admin-dashboard");
-      // else navigate("/user-dashboard");
+
 
     } catch (err) {
       console.error(err);

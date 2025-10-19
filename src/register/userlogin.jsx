@@ -10,7 +10,7 @@ const UserLogin = () => {
     const { login } = useSupabaseLogin();
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({ email: "", password: "" });
-  const { email, password } = credentials;
+  const {email, password } = credentials;
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");

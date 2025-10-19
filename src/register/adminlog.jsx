@@ -55,7 +55,7 @@ const handleLogin = async (e) => {
         .from("team_members")
         .select("*")
         .eq("email", email)
-        .maybeSingle(); // prevents "multiple or no rows" crash
+        .maybeSingle();
 
       if (teamError) {
         setError(teamError.message);
@@ -76,7 +76,7 @@ const handleLogin = async (e) => {
 
 
       // You can redirect based on `teamMember.access` here
-      // Example:
+    
       // if (teamMember.access === "admin") navigate("/admin-dashboard");
       // else navigate("/user-dashboard");
 

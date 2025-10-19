@@ -14,19 +14,53 @@ export default function StandardDetailPage() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [newTask, setNewTask] = useState({
     title: '',
-    start: new Date(),
-    end: new Date(),
+    dueDate: new Date(),
+    frequency: 'Monthly',
     assigned_to: [],
     status: 'Not Started'
   });
-  const [openForm, setOpenForm] = useState(false); // modal form
-  const [tableView, setTableView] = useState(false); // toggle for table view
+  const [openForm, setOpenForm] = useState(false);
+  const [tableView, setTableView] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- NEW state for compact list ---
+  // Frequency options
+  const frequencyOptions = ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Bi-Annually', 'Annually'];
+  
+  // NEW state for compact list
   const [showAllMembers, setShowAllMembers] = useState(false);
   const DEFAULT_VISIBLE_MEMBERS = 10;
+
+  // Calculate start date based on frequency and due date
+  const calculateStartDate = (dueDate, frequency) => {
+    const due = new Date(dueDate);
+    const start = new Date(due);
+    
+    switch (frequency) {
+      case 'Daily':
+        start.setDate(due.getDate());
+        break;
+      case 'Weekly':
+        start.setDate(due.getDate() - 7);
+        break;
+      case 'Monthly':
+        start.setMonth(due.getMonth() - 1);
+        break;
+      case 'Quarterly':
+        start.setMonth(due.getMonth() - 3);
+        break;
+      case 'Bi-Annually':
+        start.setMonth(due.getMonth() - 6);
+        break;
+      case 'Annually':
+        start.setFullYear(due.getFullYear() - 1);
+        break;
+      default:
+        start.setMonth(due.getMonth() - 1);
+    }
+    
+    return start;
+  };
 
   // Fetch standard + tasks
   useEffect(() => {
@@ -63,7 +97,7 @@ export default function StandardDetailPage() {
   // Fetch team members
   const fetchTeamMembers = async () => {
     try {
-            setLoading(true);
+      setLoading(true);
       let query = supabase.from('team_members').select('*');
       const { data, error: fetchError } = await query;
       if (fetchError) throw fetchError;
@@ -92,13 +126,17 @@ export default function StandardDetailPage() {
     }
 
     try {
+      // Calculate start date based on frequency and due date
+      const startDate = calculateStartDate(newTask.dueDate, newTask.frequency);
+      
       const { error } = await supabase.from('tasks').insert([{
         title: newTask.title,
         assigned_to: newTask.assigned_to.join(', '),
-        start: newTask.start.toISOString(),
-        end: newTask.end.toISOString(),
+        start: startDate.toISOString(),
+        end: newTask.dueDate.toISOString(),
         status: newTask.status,
-        standard: slug
+        standard: slug,
+        frequency: newTask.frequency // Store frequency for easy access
       }]);
 
       if (error) {
@@ -106,37 +144,39 @@ export default function StandardDetailPage() {
         return;
       }
 
-      //send emails to assigned members
-    for (let fullName of newTask.assigned_to) {
-      const member = teamMembers.find(
-        m => `${m.first_name} ${m.last_name}` === fullName
-      );
+      // Send emails to assigned members
+      for (let fullName of newTask.assigned_to) {
+        const member = teamMembers.find(
+          m => `${m.first_name} ${m.last_name}` === fullName
+        );
 
-      if (member?.email) {
-        await fetch("/api/send-task-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to: member.email,
-            name: fullName,
-            standard: standard.title,
-            title: newTask.title,
-            start: newTask.start,
-            end: newTask.end,
-            frequency: getFrequency(newTask.start, newTask.end)
-          }),
-        });
+        if (member?.email) {
+          await fetch("/api/send-task-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: member.email,
+              name: fullName,
+              standard: standard.title,
+              title: newTask.title,
+              start: startDate,
+              end: newTask.dueDate,
+              frequency: newTask.frequency
+            }),
+          });
+        }
       }
-    }
 
+      // Reset form
       setNewTask({
         title: '',
-        start: new Date(),
-        end: new Date(),
+        dueDate: new Date(),
+        frequency: 'Monthly',
         assigned_to: [],
         status: 'Not Started'
       });
 
+      // Refresh tasks
       const { data: tasksData } = await supabase
         .from('tasks')
         .select('*')
@@ -185,28 +225,32 @@ export default function StandardDetailPage() {
     'In Progress': 'bg-blue-100 text-blue-800',
     'Not Started': 'bg-gray-100 text-gray-800',
     'Overdue': 'bg-red-100 text-red-800',
-    // 'Pending Review': 'bg-yellow-100 text-yellow-800'
   };
 
+  // Get frequency for display (now stored in task.frequency)
+  const getFrequencyDisplay = (task) => {
+    return task.frequency || getFrequency(task.start, task.end);
+  };
+
+  // Legacy frequency calculation (for existing tasks)
   const getFrequency = (start, end) => {
     const days = Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
     if (days <= 1) return "Daily";
-  if (days <= 7) return "Weekly";
-  if (days <= 30) return "Monthly";
-  if (days <= 90) return "Quarterly";  
-  if (days <= 180) return "Bi-Annually";
-  return "Annually";
+    if (days <= 7) return "Weekly";
+    if (days <= 30) return "Monthly";
+    if (days <= 90) return "Quarterly";  
+    if (days <= 180) return "Bi-Annually";
+    return "Annually";
   };
 
-  // --- Export to Excel handler ---
+  // Export to Excel handler
   const exportToExcel = () => {
-    // Build rows exactly as table headers: Task, Coordinator, Frequency, Status, Timeframe
     const rows = tasks.map(t => ({
       Task: t.title,
       Coordinator: t.assigned_to,
-      Frequency: getFrequency(t.start, t.end),
+      Frequency: getFrequencyDisplay(t),
       Status: t.status || 'Not specified',
-      Timeframe: `${t.start ? new Date(t.start).toLocaleString() : 'N/A'} - ${t.end ? new Date(t.end).toLocaleString() : 'N/A'}`
+      'Due Date': t.end ? new Date(t.end).toLocaleString() : 'N/A'
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -234,7 +278,7 @@ export default function StandardDetailPage() {
     return <div className="text-center py-12">Standard not found</div>;
   }
 
-  // --- helper slice for compact members display ---
+  // Helper slice for compact members display
   const visibleMembers = showAllMembers ? teamMembers : teamMembers.slice(0, DEFAULT_VISIBLE_MEMBERS);
 
   return (
@@ -282,16 +326,47 @@ export default function StandardDetailPage() {
               <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg">
                 <h2 className="text-xl font-semibold mb-4 text-gray-700">Create New Task</h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-4">
+                  {/* Task Title */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Task Title *</label>
                     <input
                       type="text"
                       value={newTask.title}
                       onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="Enter task description"
                     />
                   </div>
+
+                  {/* Frequency and Due Date */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Frequency *</label>
+                      <select
+                        value={newTask.frequency}
+                        onChange={(e) => setNewTask({ ...newTask, frequency: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        {frequencyOptions.map(freq => (
+                          <option key={freq} value={freq}>{freq}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Due Date *</label>
+                      <DatePicker
+                        selected={newTask.dueDate}
+                        onChange={(date) => setNewTask({ ...newTask, dueDate: date })}
+                        showTimeSelect
+                        dateFormat="MMMM d, yyyy h:mm aa"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        minDate={new Date()}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Status */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
@@ -304,83 +379,60 @@ export default function StandardDetailPage() {
                       ))}
                     </select>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Assign To */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Start</label>
-                    <DatePicker
-                      selected={newTask.start}
-                      onChange={(d) => setNewTask({ ...newTask, start: d })}
-                      showTimeSelect
-                      dateFormat="Pp"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">End</label>
-                    <DatePicker
-                      selected={newTask.end}
-                      onChange={(d) => setNewTask({ ...newTask, end: d })}
-                      showTimeSelect
-                      dateFormat="Pp"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                </div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Assign To *</label>
 
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Assign To</label>
-
-                  {/* Compact list with View All toggle */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-2">
-                    {visibleMembers.map(m => {
-                      const fullName = `${m.first_name} ${m.last_name}`;
-                      return (
-                        <div
-                          key={m.id}
-                          onClick={() => toggleTeamMember(fullName)}
-                          className={`p-2 rounded-lg border cursor-pointer select-none ${
-                            newTask.assigned_to.includes(fullName)
-                              ? "bg-indigo-100 border-indigo-500"
-                              : "bg-white border-gray-300"
-                          }`}
-                        >
-                          {fullName}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* If there are more members than DEFAULT_VISIBLE_MEMBERS show toggle */}
-                  {teamMembers.length > DEFAULT_VISIBLE_MEMBERS && (
-                    <div className="mt-1">
-                      <button
-                        onClick={() => setShowAllMembers(prev => !prev)}
-                        className="text-sm text-indigo-600 hover:underline"
-                        type="button"
-                      >
-                        {showAllMembers ? 'Show less' : `View all (${teamMembers.length})`}
-                      </button>
+                    {/* Compact list with View All toggle */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-2">
+                      {visibleMembers.map(m => {
+                        const fullName = `${m.first_name} ${m.last_name}`;
+                        return (
+                          <div
+                            key={m.id}
+                            onClick={() => toggleTeamMember(fullName)}
+                            className={`p-2 rounded-lg border cursor-pointer select-none text-sm ${
+                              newTask.assigned_to.includes(fullName)
+                                ? "bg-indigo-100 border-indigo-500 text-indigo-700"
+                                : "bg-white border-gray-300 text-gray-700"
+                            }`}
+                          >
+                            {fullName}
+                          </div>
+                        );
+                      })}
                     </div>
-                  )}
+                    {teamMembers.length > DEFAULT_VISIBLE_MEMBERS && (
+                      <div className="mt-1">
+                        <button
+                          onClick={() => setShowAllMembers(prev => !prev)}
+                          className="text-sm text-indigo-600 hover:underline"
+                          type="button"
+                        >
+                          {showAllMembers ? 'Show less' : `View all (${teamMembers.length})`}
+                        </button>
+                      </div>
+                    )}
 
-                  {/* Small helper text about multi-select */}
-                  <p className="text-xs text-gray-500 mt-2">Click to select multiple coordinators. Selected names will be saved as a comma-separated list.</p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Selected: {newTask.assigned_to.length > 0 ? newTask.assigned_to.join(', ') : 'None'}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2 mt-6">
                   <button
                     onClick={() => { setOpenForm(false); setShowAllMembers(false); }}
-                    className="px-4 py-2 border rounded-lg"
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleAddTask}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
                   >
-                    Create
+                    Create Task
                   </button>
                 </div>
               </div>
@@ -394,28 +446,32 @@ export default function StandardDetailPage() {
               <table className="min-w-full border border-gray-200 text-sm">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-4 py-2 border">Title</th>
-                    <th className="px-4 py-2 border">Assigned To</th>
-                    <th className="px-4 py-2 border">Timeframe</th>
-                    <th className="px-4 py-2 border">Frequency</th>
-                    <th className="px-4 py-2 border">Status</th>
-                    <th className="px-4 py-2 border">Actions</th>
+                    <th className="px-4 py-2 border text-left">Task</th>
+                    <th className="px-4 py-2 border text-left">Coordinator</th>
+                    <th className="px-4 py-2 border text-left">Frequency</th>
+                    <th className="px-4 py-2 border text-left">Due Date</th>
+                    <th className="px-4 py-2 border text-left">Status</th>
+                    <th className="px-4 py-2 border text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tasks.map(task => (
-                    <tr key={task.id} className="text-center">
+                    <tr key={task.id} className="hover:bg-gray-50">
                       <td className="border px-4 py-2">{task.title}</td>
                       <td className="border px-4 py-2">{task.assigned_to}</td>
+                      <td className="border px-4 py-2">{getFrequencyDisplay(task)}</td>
                       <td className="border px-4 py-2">
-                        {task.start ? new Date(task.start).toLocaleString() : 'N/A'} - {task.end ? new Date(task.end).toLocaleString() : 'N/A'}
+                        {task.end ? new Date(task.end).toLocaleString() : 'N/A'}
                       </td>
-                      <td className="border px-4 py-2">{getFrequency(task.start, task.end)}</td>
-                      <td className="border px-4 py-2">{task.status}</td>
+                      <td className="border px-4 py-2">
+                        <span className={`px-2 py-1 rounded text-xs ${statusColors[task.status] || 'bg-gray-100 text-gray-800'}`}>
+                          {task.status}
+                        </span>
+                      </td>
                       <td className="border px-4 py-2">
                         <button
                           onClick={() => handleDeleteTask(task.id)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 hover:text-red-800 text-sm"
                         >
                           Delete
                         </button>
@@ -426,22 +482,45 @@ export default function StandardDetailPage() {
               </table>
             </div>
           ) : (
-            // Card View (your old design)
+            // Card View
             <div className="space-y-4 mt-6">
               {tasks.map(task => {
-                const daysRemaining = Math.ceil((new Date(task.end) - new Date()) / (1000 * 60 * 60 * 24));
+                const dueDate = new Date(task.end);
+                const daysRemaining = Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24));
+                
                 return (
-                  <div key={task.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                    <div className="flex justify-between">
-                      <h3 className="font-bold">{task.title}</h3>
-                      <button onClick={() => handleDeleteTask(task.id)} className="text-red-600">✕</button>
+                  <div key={task.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-bold text-gray-800 text-lg">{task.title}</h3>
+                      <button 
+                        onClick={() => handleDeleteTask(task.id)} 
+                        className="text-gray-400 hover:text-red-600 transition-colors"
+                      >
+                        ✕
+                      </button>
                     </div>
-                    <p className="text-sm mt-2">{task.assigned_to}</p>
-                    <p className="text-xs mt-1">
-                      {task.start ? new Date(task.start).toLocaleString() : 'N/A'} – {task.end ? new Date(task.end).toLocaleString() : 'N/A'}
-                    </p>
-                    <span className={`mt-2 inline-block px-2 py-1 rounded text-xs ${statusColors[task.status] || 'bg-gray-100 text-gray-800'}`}>{task.status}</span>
                     
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Assigned to:</span> {task.assigned_to}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Frequency:</span> {getFrequencyDisplay(task)}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Due:</span> {dueDate.toLocaleString()}
+                      </p>
+                      <div className="flex justify-between items-center mt-3">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[task.status] || 'bg-gray-100 text-gray-800'}`}>
+                          {task.status}
+                        </span>
+                        {daysRemaining >= 0 && task.status !== 'Completed' && (
+                          <span className="text-xs text-gray-500">
+                            {daysRemaining === 0 ? 'Due today' : `${daysRemaining} days remaining`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 );
               })}

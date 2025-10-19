@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
-// optional for nicer messages
-
 export default function ForgotPassword({ email }) {
     const supabase = useSupabaseClient();
   const [resetEmail, setResetEmail] = useState(email || "");

@@ -1,4 +1,4 @@
-// pages/update-password.js
+
 import { useState } from "react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useNavigate } from "react-router-dom";
@@ -44,7 +44,7 @@ export default function UpdatePasswordPage() {
       alert(error.message);
     } else {
       alert("Password updated successfully! You can now log in.");
-      navigate("/login"); // Or role-specific login if you want
+      navigate("/login"); 
     }
   };
 

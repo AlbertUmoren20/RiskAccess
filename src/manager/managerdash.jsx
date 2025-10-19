@@ -8,6 +8,7 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { set } from "date-fns";
 
 
+
 const ManagerDashboard = () => {
   const [standards, setStandards] = useState([]);
   const supabase = useSupabaseClient();
@@ -31,7 +32,7 @@ const [loading, setLoading] = useState(true);
   fetchData();
 }, [supabase]);
 
-  // Mock data - in a real app, you would fetch this from Supabase
+//mock data, would later fetch from supabase
 const stats = [
   { name: 'Team Members', value: team.length, icon: Users, color: 'bg-blue-100 text-blue-600' },
   { name: 'Completed', value: tasks.filter(t => t.status === 'Completed').length, icon: FileText, color: 'bg-green-100 text-green-600' },
