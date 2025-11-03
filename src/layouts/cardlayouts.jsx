@@ -147,7 +147,7 @@ useEffect(() => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {tasks.map(task => (
-                  <TaskCard key={task.id} task={task} />
+                  <TaskCard key={task.id} task={task}/>
                 ))}
               </div>
             )}

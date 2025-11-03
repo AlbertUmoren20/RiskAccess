@@ -136,35 +136,50 @@ export default function ReportPage() {
 
   // 🔸 Submit Query
   const handleSubmitQuery = async () => {
-    if (!selectedStandard || !selectedTask || !queryText) {
-      alert("Please fill all fields");
-      return;
-    }
+  if (!selectedStandard || !selectedTask || !queryText) {
+    alert("Please fill all fields");
+    return;
+  }
 
-    const { data, error } = await supabase
-      .from("queries")
-      .insert([
-        {
+  const { data, error } = await supabase
+    .from("queries")
+    .insert([
+      {
+        standard: selectedStandard,
+        task_id: selectedTask,
+        query_text: queryText,
+        assigned_to: selectedTaskObj?.assigned_to || "Unassigned",
+      },
+    ])
+    .select();
+
+  if (error) {
+    console.error("Error inserting query:", error);
+    alert("Failed to submit query");
+  } else {
+ 
+    try {
+      await supabase.functions.invoke('send-email', {
+        body: {
+          emailType: 'query',
+          to: 'manager@company.com', // Or get from task assignee
+          task: selectedTaskObj?.title,
           standard: selectedStandard,
-          task_id: selectedTask,
-          query_text: queryText,
-          assigned_to: selectedTaskObj?.assigned_to || "Unassigned",
-        },
-      ])
-      .select();
-
-    if (error) {
-      console.error("Error inserting query:", error);
-      alert("Failed to submit query");
-    } else {
-      alert("Query submitted successfully!");
-      setShowQueryPopup(false);
-      setSelectedStandard("");
-      setSelectedTask("");
-      setQueryText("");
-      setQueries((prev) => [...prev, ...data]);
+          query: queryText
+        }
+      });
+    } catch (emailError) {
+      console.error('Failed to send query email:', emailError);
     }
-  };
+    
+    alert("Query submitted successfully!");
+    setShowQueryPopup(false);
+    setSelectedStandard("");
+    setSelectedTask("");
+    setQueryText("");
+    setQueries((prev) => [...prev, ...data]);
+  }
+};
 
   // 🔸 Export Report to Excel - UPDATED to use getFrequencyDisplay
   const exportReportToExcel = () => {
@@ -372,3 +387,4 @@ export default function ReportPage() {
     </div>
   );
 }
+

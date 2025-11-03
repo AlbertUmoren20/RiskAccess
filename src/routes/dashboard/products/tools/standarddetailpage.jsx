@@ -14,53 +14,22 @@ export default function StandardDetailPage() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [newTask, setNewTask] = useState({
     title: '',
-    dueDate: new Date(),
-    frequency: 'Monthly',
+    start: new Date(), // Changed from dueDate to start
+    end: new Date(),   // Changed to end for consistency
     assigned_to: [],
     status: 'Not Started'
+    // Removed frequency field
   });
   const [openForm, setOpenForm] = useState(false);
   const [tableView, setTableView] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Frequency options
-  const frequencyOptions = ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Bi-Annually', 'Annually'];
-  
+  // Removed frequencyOptions since we're not using frequency anymore
+
   // NEW state for compact list
   const [showAllMembers, setShowAllMembers] = useState(false);
   const DEFAULT_VISIBLE_MEMBERS = 10;
-
-  // Calculate start date based on frequency and due date
-  const calculateStartDate = (dueDate, frequency) => {
-    const due = new Date(dueDate);
-    const start = new Date(due);
-    
-    switch (frequency) {
-      case 'Daily':
-        start.setDate(due.getDate());
-        break;
-      case 'Weekly':
-        start.setDate(due.getDate() - 7);
-        break;
-      case 'Monthly':
-        start.setMonth(due.getMonth() - 1);
-        break;
-      case 'Quarterly':
-        start.setMonth(due.getMonth() - 3);
-        break;
-      case 'Bi-Annually':
-        start.setMonth(due.getMonth() - 6);
-        break;
-      case 'Annually':
-        start.setFullYear(due.getFullYear() - 1);
-        break;
-      default:
-        start.setMonth(due.getMonth() - 1);
-    }
-    
-    return start;
-  };
 
   // Fetch standard + tasks
   useEffect(() => {
@@ -113,7 +82,7 @@ export default function StandardDetailPage() {
     fetchTeamMembers();
   }, [supabase]);
 
-  // Add Task
+  // Add Task - UPDATED to remove frequency
   const handleAddTask = async () => {
     if (!newTask.title.trim()) {
       setError('Task title is required');
@@ -126,18 +95,20 @@ export default function StandardDetailPage() {
     }
 
     try {
-      // Calculate start date based on frequency and due date
-      const startDate = calculateStartDate(newTask.dueDate, newTask.frequency);
-      
-      const { error } = await supabase.from('tasks').insert([{
+      // Prepare task data WITHOUT frequency
+      const taskData = {
         title: newTask.title,
         assigned_to: newTask.assigned_to.join(', '),
-        start: startDate.toISOString(),
-        end: newTask.dueDate.toISOString(),
+        start: newTask.start.toISOString(),
+        end: newTask.end.toISOString(),
         status: newTask.status,
-        standard: slug,
-        frequency: newTask.frequency // Store frequency for easy access
-      }]);
+        standard: slug
+        // Removed frequency field
+      };
+
+      console.log('Creating task with data:', taskData);
+
+      const { error } = await supabase.from('tasks').insert([taskData]);
 
       if (error) {
         setError(`Failed to create task: ${error.message}`);
@@ -159,9 +130,9 @@ export default function StandardDetailPage() {
               name: fullName,
               standard: standard.title,
               title: newTask.title,
-              start: startDate,
-              end: newTask.dueDate,
-              frequency: newTask.frequency
+              start: newTask.start,
+              end: newTask.end
+              // Removed frequency from email
             }),
           });
         }
@@ -170,8 +141,8 @@ export default function StandardDetailPage() {
       // Reset form
       setNewTask({
         title: '',
-        dueDate: new Date(),
-        frequency: 'Monthly',
+        start: new Date(),
+        end: new Date(),
         assigned_to: [],
         status: 'Not Started'
       });
@@ -227,13 +198,15 @@ export default function StandardDetailPage() {
     'Overdue': 'bg-red-100 text-red-800',
   };
 
-  // Get frequency for display (now stored in task.frequency)
+  // Get frequency for display - UPDATED to only use date calculation
   const getFrequencyDisplay = (task) => {
-    return task.frequency || getFrequency(task.start, task.end);
+    return getFrequency(task.start, task.end);
   };
 
-  // Legacy frequency calculation (for existing tasks)
+  // Frequency calculation based on date difference
   const getFrequency = (start, end) => {
+    if (!start || !end) return "N/A";
+    
     const days = Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
     if (days <= 1) return "Daily";
     if (days <= 7) return "Weekly";
@@ -243,13 +216,14 @@ export default function StandardDetailPage() {
     return "Annually";
   };
 
-  // Export to Excel handler
+  // Export to Excel handler - UPDATED
   const exportToExcel = () => {
     const rows = tasks.map(t => ({
       Task: t.title,
       Coordinator: t.assigned_to,
-      Frequency: getFrequencyDisplay(t),
+      Frequency: getFrequencyDisplay(t), // Now uses calculated frequency
       Status: t.status || 'Not specified',
+      'Start Date': t.start ? new Date(t.start).toLocaleString() : 'N/A',
       'Due Date': t.end ? new Date(t.end).toLocaleString() : 'N/A'
     }));
 
@@ -258,7 +232,7 @@ export default function StandardDetailPage() {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Tasks');
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, 'tasks.xlsx');
+    saveAs(blob, `tasks-${slug}.xlsx`);
   };
 
   // Loading state
@@ -320,7 +294,7 @@ export default function StandardDetailPage() {
             </div>
           </div>
 
-          {/* Modal Popup */}
+          {/* Modal Popup - UPDATED to remove frequency field */}
           {openForm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
               <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg">
@@ -339,25 +313,23 @@ export default function StandardDetailPage() {
                     />
                   </div>
 
-                  {/* Frequency and Due Date */}
+                  {/* Start and End Date - REPLACED Frequency and Due Date */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Frequency *</label>
-                      <select
-                        value={newTask.frequency}
-                        onChange={(e) => setNewTask({ ...newTask, frequency: e.target.value })}
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+                      <DatePicker
+                        selected={newTask.start}
+                        onChange={(date) => setNewTask({ ...newTask, start: date })}
+                        showTimeSelect
+                        dateFormat="MMMM d, yyyy h:mm aa"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      >
-                        {frequencyOptions.map(freq => (
-                          <option key={freq} value={freq}>{freq}</option>
-                        ))}
-                      </select>
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Due Date *</label>
                       <DatePicker
-                        selected={newTask.dueDate}
-                        onChange={(date) => setNewTask({ ...newTask, dueDate: date })}
+                        selected={newTask.end}
+                        onChange={(date) => setNewTask({ ...newTask, end: date })}
                         showTimeSelect
                         dateFormat="MMMM d, yyyy h:mm aa"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -449,6 +421,7 @@ export default function StandardDetailPage() {
                     <th className="px-4 py-2 border text-left">Task</th>
                     <th className="px-4 py-2 border text-left">Coordinator</th>
                     <th className="px-4 py-2 border text-left">Frequency</th>
+                    <th className="px-4 py-2 border text-left">Start Date</th>
                     <th className="px-4 py-2 border text-left">Due Date</th>
                     <th className="px-4 py-2 border text-left">Status</th>
                     <th className="px-4 py-2 border text-left">Actions</th>
@@ -460,6 +433,9 @@ export default function StandardDetailPage() {
                       <td className="border px-4 py-2">{task.title}</td>
                       <td className="border px-4 py-2">{task.assigned_to}</td>
                       <td className="border px-4 py-2">{getFrequencyDisplay(task)}</td>
+                      <td className="border px-4 py-2">
+                        {task.start ? new Date(task.start).toLocaleString() : 'N/A'}
+                      </td>
                       <td className="border px-4 py-2">
                         {task.end ? new Date(task.end).toLocaleString() : 'N/A'}
                       </td>
@@ -485,6 +461,7 @@ export default function StandardDetailPage() {
             // Card View
             <div className="space-y-4 mt-6">
               {tasks.map(task => {
+                const startDate = new Date(task.start);
                 const dueDate = new Date(task.end);
                 const daysRemaining = Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24));
                 
@@ -506,6 +483,9 @@ export default function StandardDetailPage() {
                       </p>
                       <p className="text-sm text-gray-600">
                         <span className="font-medium">Frequency:</span> {getFrequencyDisplay(task)}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Start:</span> {startDate.toLocaleString()}
                       </p>
                       <p className="text-sm text-gray-600">
                         <span className="font-medium">Due:</span> {dueDate.toLocaleString()}

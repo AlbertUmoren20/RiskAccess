@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, CircularProgress, Chip, Alert, Snackbar, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Box, Typography, Button, CircularProgress, Chip, Alert, Snackbar, MenuItem, Select, FormControl } from '@mui/material';
 import { useTasks } from '@/contexts/taskcontext';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import DatePicker from 'react-datepicker';
@@ -21,7 +21,7 @@ export default function ManagerTasksPage() {
     end: new Date(),
     assigned_to: [],
     status: 'Not Started',
-    standard: '' 
+    standard: ''
   });
 
   const statusColors = {
@@ -54,7 +54,7 @@ export default function ManagerTasksPage() {
     fetchTeamMembers();
   }, [supabase]);
 
-
+  // Fetch standards
   useEffect(() => {
     const fetchStandards = async () => {
       try {
@@ -96,22 +96,67 @@ export default function ManagerTasksPage() {
       return;
     }
     try {
-      await createTask(newTask);
-      setNewTask({
-        title: '',
-        start: new Date(),
-        end: new Date(),
-        assigned_to: [],
-        status: 'Not Started',
-        standard: ''
-      });
-      setShowForm(false);
-      setError(null);
-      setSuccess('Task created successfully!');
-    } catch (err) {
-      setError(err.message);
+      // Prepare task data WITHOUT frequency
+      const taskData = {
+        title: newTask.title,
+        start: newTask.start.toISOString(),
+        end: newTask.end.toISOString(),
+        assigned_to: newTask.assigned_to.join(', '),
+        status: newTask.status,
+        standard: newTask.standard
+      };
+
+      console.log('Creating task with data:', taskData);
+      
+      await createTask(taskData);
+      
+      for (const teamMemberName of newTask.assigned_to) {
+      const teamMember = teamMembers.find(member => 
+        `${member.first_name} ${member.last_name}`.trim() === teamMemberName
+      );
+      
+      if (teamMember && teamMember.email) {
+        await supabase.functions.invoke('send-email', {
+          body: {
+            emailType: 'assignment',
+            to: teamMember.email,
+            name: teamMemberName,
+            standard: newTask.standard,
+            title: newTask.title,
+            start: newTask.start.toISOString(),
+            end: newTask.end.toISOString(),
+            frequency: getFrequencyFromDates(newTask.start, newTask.end) // You'll need to create this function
+          }
+        });
+      }
     }
-  };
+
+      setNewTask({
+      title: '',
+      start: new Date(),
+      end: new Date(),
+      assigned_to: [],
+      status: 'Not Started',
+      standard: ''
+    });
+    setShowForm(false);
+    setError(null);
+    setSuccess('Task created successfully!');
+  } catch (err) {
+    console.error('Error creating task:', err);
+    setError(`Failed to create task: ${err.message}`);
+  }
+};
+
+const getFrequencyFromDates = (start, end) => {
+  const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  if (days <= 1) return "Daily";
+  if (days <= 7) return "Weekly";
+  if (days <= 30) return "Monthly";
+  if (days <= 90) return "Quarterly";
+  if (days <= 180) return "Bi-Annually";
+  return "Annually";
+};
 
   const resetForm = () => {
     setShowForm(false);
@@ -163,7 +208,7 @@ export default function ManagerTasksPage() {
         message={success}
       />
 
-      {/* Task Creation Form */}
+      {/* Task Creation Form - SAME AS BEFORE */}
       {showForm && (
         <Box 
           mt={2} 
@@ -235,11 +280,6 @@ export default function ManagerTasksPage() {
                   ))}
                 </Select>
               </FormControl>
-              {standards.length === 0 && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                  No standards available. Please ask an admin to create standards first.
-                </Typography>
-              )}
             </Box>
 
             {/* Status */}
@@ -258,6 +298,7 @@ export default function ManagerTasksPage() {
               </select>
             </Box>
 
+            {/* Date Pickers */}
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
               <Box>
                 <Typography variant="body2" fontWeight="medium" gutterBottom>
@@ -285,7 +326,7 @@ export default function ManagerTasksPage() {
               </Box>
             </Box>
 
-          
+            {/* Team Members Assignment */}
             <Box>
               <Typography variant="body2" fontWeight="medium" gutterBottom>
                 Assign To Team Members *
@@ -362,6 +403,7 @@ export default function ManagerTasksPage() {
               )}
             </Box>
 
+            {/* Action Buttons */}
             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 1 }}>
               <Button 
                 variant="outlined" 
@@ -381,7 +423,7 @@ export default function ManagerTasksPage() {
         </Box>
       )}
 
- 
+      {/* Tasks List */}
       <Box mt={4}>
         <Typography variant="h5" gutterBottom>
           Your Created Tasks ({tasks.length})

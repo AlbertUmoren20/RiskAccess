@@ -29,6 +29,7 @@ import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { format, parseISO, isPast, isToday, isTomorrow } from 'date-fns';
 import EvidenceUpload from '@/functions/EvidenceUpload';
 
+
 const ManagerViewTask = () => {
   const supabase = useSupabaseClient();
   const user = useUser();

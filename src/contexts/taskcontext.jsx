@@ -1,14 +1,15 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
-// import { useTasks } from '@/contexts/taskcontext';
-
+import { useCallback, useMemo } from 'react';
 
 const TaskContext = createContext(null);
+  
 
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const supabase = useSupabaseClient(); 
+  
 
   useEffect(() => {
      const channel = supabase
@@ -39,54 +40,76 @@ export const TaskProvider = ({ children }) => {
     setTasks(data);
 
     };
-const createTask = async (task) => {
+// In your createTask function
+const createTask = async (taskData) => {
   try {
     const { data, error } = await supabase
       .from('tasks')
-      .insert([task])
+      .insert([{
+        title: taskData.title,
+        start: taskData.start,
+        end: taskData.end,
+        assigned_to: taskData.assigned_to,
+        status: taskData.status,
+        standard: taskData.standard
+      
+      }])
       .select();
-    
+
     if (error) throw error;
     
+
     setTasks(prev => [...prev, ...data]);
-    return data[0];
+    return data;
   } catch (error) {
     console.error('Error creating task:', error);
-    return null;
+    throw error;
   }
 };
-  
- const updateTaskStatus = async (taskId, status) => {
-    // Optimistic UI update
-    setTasks(prev => 
-      prev.map(task => task.id === taskId ? { ...task, status } : task)
-    );
+ // In your taskcontext.jsx
+  const updateTaskStatus = useCallback(async (taskId, newStatus) => {
+  try {
+     setTasks(prevTasks => 
+        prevTasks.map(task => 
+          task.id === taskId ? { ...task, status: newStatus } : task
+        )
+      );
+    console.log('Context: Updating task', taskId, 'to', newStatus);
     
-    // Update in Supabase
     const { error } = await supabase
       .from('tasks')
-      .update({ status })
+      .update({ status: newStatus })
       .eq('id', taskId);
 
     if (error) {
-      console.error('Error updating task:', error);
-      // Revert on error
-      setTasks(prev => 
-        prev.map(task => task.id === taskId ? { ...task, status: task.status } : task)
-      );
+      console.error('Supabase error:', error);
+      throw error;
     }
-  };
+
+    console.log('Task status updated successfully');
+ } catch (error) {
+      // Revert on error
+      setTasks(prevTasks => 
+        prevTasks.map(task => 
+          task.id === taskId ? { ...task, status: task.status } : task
+        )
+      );
+      throw error;
+    }
+  }, []);
+
+  
+  const value = useMemo(() => ({
+    tasks,
+    updateTaskStatus,
+  }), [tasks, updateTaskStatus]);
 
 
   const addTask = (task) => {
     setTasks((prev) => [...prev, { ...task, id: Date.now().toString(), status: 'Not Started' }]);
   };
 
-  // const updateTaskStatus = (taskId, status) => {
-  //   setTasks((prev) =>
-  //     prev.map((task) => (task.id === taskId ? { ...task, status } : task))
-  //   );
-  // };
+
 
   const deleteTask = (taskId) => {
     setTasks((prev) => prev.filter((task) => task.id !== taskId));
